@@ -87,7 +87,7 @@ class DisplayManager {
 
         this.gameArea.appendChild(projectileElement);
         this.gameObjects.set(projectileData.id, projectileElement);
-        console.log('➕ CREATED projectile:', projectileData.id, 'Type:', typeof projectileData.id, 'Map size now:', this.gameObjects.size);
+        // Projectile created and tracked
 
         return projectileElement;
     }
@@ -108,16 +108,16 @@ class DisplayManager {
             // Then try to remove from DOM if it exists
             if (element.parentNode) {
                 element.parentNode.removeChild(element);
-                console.log('➖ REMOVED projectile:', projectileId, 'Map size now:', this.gameObjects.size);
+                // Projectile removed successfully
             } else {
-                console.log('➖ REMOVED projectile from map only:', projectileId, '(element already removed from DOM)');
+                // Projectile cleaned up from tracking
             }
         } else {
             // Element not in map, try to find and remove from DOM anyway
             const domElement = document.getElementById(`projectile-${projectileId}`);
             if (domElement && domElement.parentNode) {
                 domElement.parentNode.removeChild(domElement);
-                console.log('➖ FORCE REMOVED orphaned projectile:', projectileId);
+                // Orphaned projectile cleaned up
             }
         }
     }
@@ -164,7 +164,7 @@ class DisplayManager {
 
         this.gameArea.appendChild(bugElement);
         this.gameObjects.set(bugData.id, bugElement);
-        console.log('➕ CREATED bug:', bugData.id, 'Type:', typeof bugData.id, 'Map size now:', this.gameObjects.size);
+        // Bug created and tracked
 
         return bugElement;
     }
@@ -186,16 +186,16 @@ class DisplayManager {
             // Then try to remove from DOM if it exists
             if (element.parentNode) {
                 element.parentNode.removeChild(element);
-                console.log('➖ REMOVED bug:', bugId, 'Map size now:', this.gameObjects.size);
+                // Bug removed successfully
             } else {
-                console.log('➖ REMOVED bug from map only:', bugId, '(element already removed from DOM)');
+                // Bug cleaned up from tracking
             }
         } else {
             // Element not in map, try to find and remove from DOM anyway
             const domElement = document.getElementById(`bug-${bugId}`);
             if (domElement && domElement.parentNode) {
                 domElement.parentNode.removeChild(domElement);
-                console.log('➖ FORCE REMOVED orphaned bug:', bugId);
+                // Orphaned bug cleaned up
             }
         }
     }
@@ -257,7 +257,7 @@ class DisplayManager {
 
         this.gameArea.appendChild(powerUpElement);
         this.gameObjects.set(powerUpData.id, powerUpElement);
-        console.log('➕ CREATED power-up:', powerUpData.id, 'Type:', typeof powerUpData.id, 'Map size now:', this.gameObjects.size);
+        // Power-up created and tracked
 
         return powerUpElement;
     }
@@ -279,16 +279,16 @@ class DisplayManager {
             // Then try to remove from DOM if it exists
             if (element.parentNode) {
                 element.parentNode.removeChild(element);
-                console.log('➖ REMOVED power-up:', powerUpId, 'Map size now:', this.gameObjects.size);
+                // Power-up removed successfully
             } else {
-                console.log('➖ REMOVED power-up from map only:', powerUpId, '(element already removed from DOM)');
+                // Power-up cleaned up from tracking
             }
         } else {
             // Element not in map, try to find and remove from DOM anyway
             const domElement = document.getElementById(`powerup-${powerUpId}`);
             if (domElement && domElement.parentNode) {
                 domElement.parentNode.removeChild(domElement);
-                console.log('➖ FORCE REMOVED orphaned power-up:', powerUpId);
+                // Orphaned power-up cleaned up
             }
         }
     }
@@ -486,43 +486,40 @@ class DisplayManager {
     }
 
     clearGameObjects() {
-        console.log('🧹 CLEANUP START: Map has', this.gameObjects.size, 'tracked objects');
+        // Starting game objects cleanup
 
         // First, audit all DOM elements in game area
         if (this.gameArea) {
             const allGameAreaChildren = Array.from(this.gameArea.children);
-            console.log('🔍 DOM AUDIT: Game area has', allGameAreaChildren.length, 'child elements:');
-            allGameAreaChildren.forEach(child => {
-                console.log('  - Element:', child.tagName, 'ID:', child.id, 'Classes:', child.className);
-            });
+            // Debug: DOM audit performed
         }
 
         // Remove all game objects except player from Map
         const objectsToRemove = [];
         this.gameObjects.forEach((element, id) => {
-            console.log('🔍 CHECKING MAP OBJECT:', id, 'Type:', typeof id, 'Element:', element?.tagName, 'ID:', element?.id);
+            // Debug: Checking tracked object
 
             // Check if id is a string and doesn't contain 'tanuki'
             if (typeof id === 'string' && !id.includes('tanuki')) {
                 console.log('  → REMOVING string-keyed object:', id);
                 if (element && element.parentNode) {
                     element.parentNode.removeChild(element);
-                    console.log('    ✓ Removed from DOM');
+                    // Successfully removed from DOM
                 } else {
-                    console.log('    ⚠️ Element not in DOM or null:', !!element, !!element?.parentNode);
+                    // Element not in DOM or null
                 }
                 objectsToRemove.push(id);
             } else if (typeof id !== 'string') {
-                console.log('  → REMOVING non-string-keyed object:', id);
+                // Removing non-string-keyed object
                 if (element && element.parentNode) {
                     element.parentNode.removeChild(element);
-                    console.log('    ✓ Removed from DOM');
+                    // Successfully removed from DOM
                 } else {
-                    console.log('    ⚠️ Element not in DOM or null:', !!element, !!element?.parentNode);
+                    // Element not in DOM or null
                 }
                 objectsToRemove.push(id);
             } else {
-                console.log('  → KEEPING player object:', id);
+                // Keeping player object
             }
         });
 
@@ -534,10 +531,10 @@ class DisplayManager {
         // Additional DOM cleanup - remove any game objects that might not be tracked
         if (this.gameArea) {
             const gameObjectElements = this.gameArea.querySelectorAll('.game-object');
-            console.log('🔍 ADDITIONAL DOM CLEANUP: Found', gameObjectElements.length, 'elements with .game-object class');
+            // Additional DOM cleanup performed
             gameObjectElements.forEach(element => {
                 if (element.id !== 'tanuki') {
-                    console.log('  → FORCE REMOVING untracked game object:', element.id, element.className);
+                    // Force removing untracked game object
                     if (element.parentNode) {
                         element.parentNode.removeChild(element);
                     }
@@ -548,18 +545,15 @@ class DisplayManager {
         // Clear effects
         if (this.effectsContainer) {
             this.effectsContainer.innerHTML = '';
-            console.log('🧹 EFFECTS: Cleared effects container');
+            // Effects container cleared
         }
 
-        console.log('🧹 CLEANUP COMPLETE: Removed', objectsToRemove.length, 'tracked objects. Map now has:', this.gameObjects.size, 'objects');
+        // Cleanup complete
 
         // Final audit
         if (this.gameArea) {
             const finalChildren = Array.from(this.gameArea.children);
-            console.log('🔍 FINAL AUDIT: Game area now has', finalChildren.length, 'child elements:');
-            finalChildren.forEach(child => {
-                console.log('  - Element:', child.tagName, 'ID:', child.id, 'Classes:', child.className);
-            });
+            // Final audit performed
         }
     }
 
@@ -589,7 +583,7 @@ class DisplayManager {
     handleResize() {
         // Update any responsive elements if needed
         const dimensions = this.getGameAreaDimensions();
-        console.log('Game area dimensions:', dimensions);
+        // Game area dimensions calculated
     }
 
     // Debug method

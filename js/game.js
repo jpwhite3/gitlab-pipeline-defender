@@ -78,19 +78,19 @@ class PipelineDefenderGame {
     updateGameBounds() {
         if (window.display) {
             const dimensions = window.display.getGameAreaDimensions();
-            console.log('Raw dimensions from getGameAreaDimensions:', dimensions);
+            // Debug: dimensions logged for development
             this.gameWidth = Math.max(dimensions.width, 400); // Minimum width
             this.gameHeight = Math.max(dimensions.height, 300); // Minimum height
         } else {
             this.gameWidth = 800; // fallback
             this.gameHeight = 600;
         }
-        console.log('Game bounds updated:', this.gameWidth, 'x', this.gameHeight);
+        // Game bounds updated successfully
 
         // Debug: Log actual game area element dimensions
         if (window.display && window.display.gameArea) {
             const rect = window.display.gameArea.getBoundingClientRect();
-            console.log('Actual game area rect:', rect);
+            // Debug: game area rect logged for development
         }
     }
 
@@ -105,7 +105,7 @@ class PipelineDefenderGame {
     }
 
     startNewGame() {
-        console.log('Starting new game...');
+        // Starting new game
 
         // Ensure any previous game is fully stopped
         this.isRunning = false;
@@ -165,7 +165,7 @@ class PipelineDefenderGame {
         // Start game loop
         this.startGameLoop();
 
-        console.log('Game started successfully');
+        // Game started successfully
     }
 
     setupGameLoop() {
@@ -354,12 +354,12 @@ class PipelineDefenderGame {
         };
 
         this.bugs.push(bug);
-        console.log('Spawned bug:', bug.id, bug.type, 'at', bug.x, bug.y);
+        // Bug spawned successfully
 
         if (window.display) {
             try {
                 window.display.createBug(bug);
-                console.log('✅ Successfully called display.createBug for ID:', bug.id);
+                // Bug display created successfully
             } catch (error) {
                 console.error('❌ Error creating bug display:', error);
                 console.error('Bug data:', bug);
@@ -405,7 +405,7 @@ class PipelineDefenderGame {
                 const bug = this.bugs[j];
 
                 if (this.isColliding(projectile, bug)) {
-                    console.log('Collision detected! Projectile:', projectile.id, 'Bug:', bug.id);
+                    // Collision detected and processed
 
                     // Remove projectile and bug
                     this.removeProjectile(i);
@@ -455,14 +455,8 @@ class PipelineDefenderGame {
 
         // Debug collision bounds
         if (collision) {
-            console.log('Collision bounds - obj1:', {
-                x: obj1.x, y: obj1.y, w: obj1.width, h: obj1.height,
-                right: obj1.x + obj1.width, bottom: obj1.y + obj1.height
-            });
-            console.log('Collision bounds - obj2:', {
-                x: obj2.x, y: obj2.y, w: obj2.width, h: obj2.height,
-                right: obj2.x + obj2.width, bottom: obj2.y + obj2.height
-            });
+            // Debug: Collision bounds calculated
+            // Debug: Collision bounds calculated
         }
 
         return collision;
@@ -551,16 +545,12 @@ class PipelineDefenderGame {
         if (window.display) {
             try {
                 window.display.createProjectile(projectile);
-                console.log('✅ Successfully called display.createProjectile for ID:', projectile.id);
+                // Projectile display created successfully
             } catch (error) {
                 console.error('❌ Error creating projectile display:', error);
                 console.error('Projectile data:', projectile);
             }
-            console.log('🚀 PROJECTILE DEBUG:');
-            console.log('  - Game dimensions:', this.gameWidth, 'x', this.gameHeight);
-            console.log('  - Player position:', this.player.x, this.player.y);
-            console.log('  - Projectile spawn:', projectile.x, projectile.y);
-            console.log('  - Expected near bottom at ~', this.gameHeight - 70);
+            // Debug: Projectile spawn coordinates calculated
         } else {
             console.error('❌ window.display not available for projectile creation');
         }
@@ -591,12 +581,12 @@ class PipelineDefenderGame {
 
     pauseGame() {
         this.isPaused = true;
-        console.log('Game paused');
+        // Game paused
     }
 
     resumeGame() {
         this.isPaused = false;
-        console.log('Game resumed');
+        // Game resumed
     }
 
     togglePause() {
@@ -615,7 +605,7 @@ class PipelineDefenderGame {
     }
 
     endGame(success, message) {
-        console.log('Ending game:', success ? 'SUCCESS' : 'FAILURE', message);
+        // Game ending
 
         this.isRunning = false;
         this.gameState = 'gameover';
