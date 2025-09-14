@@ -8,10 +8,11 @@ class PipelineDefenderGame {
         this.gameState = 'menu'; // menu, playing, paused, gameover
         this.isRunning = false;
         this.isPaused = false;
+        this.frameCounter = 0;
 
         // Game configuration
         this.config = {
-            gameTime: 90, // seconds
+            gameTime: 60, // seconds - survival time for score-based gameplay
             playerSpeed: 6,
             projectileSpeed: 6,
             bugSpeed: 1.0,
@@ -246,6 +247,8 @@ class PipelineDefenderGame {
     }
 
     update(deltaTime) {
+        this.frameCounter++;
+
         // Handle input
         this.handleInput();
 
@@ -258,7 +261,7 @@ class PipelineDefenderGame {
         // Spawn new objects
         this.spawnObjects();
 
-        // Check collisions
+        // Check collisions after movement
         this.checkCollisions();
 
         // Update display
@@ -292,13 +295,18 @@ class PipelineDefenderGame {
     updateProjectiles() {
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
             const projectile = this.projectiles[i];
-            const oldY = projectile.y;
+
+            // Store old position for collision detection
+            // If this is the first frame, oldY should be the current Y
+            if (projectile.oldY === undefined) {
+                projectile.oldY = projectile.y;
+            } else {
+                projectile.oldY = projectile.y;
+            }
+
             projectile.y -= this.config.projectileSpeed; // Move up (decrease y)
 
-            if (i === 0) { // Log first projectile for debugging
-                console.error('PROJECTILE UPDATE: ID', projectile.id, 'Y:', oldY, '->', projectile.y, 'Speed:', this.config.projectileSpeed);
-                console.error('PROJECTILE OBJECT:', JSON.stringify(projectile, null, 2));
-            }
+            // Removed verbose projectile logging
 
             // Remove if off screen (top)
             if (projectile.y < -projectile.height) {
@@ -444,17 +452,19 @@ class PipelineDefenderGame {
     }
 
     checkCollisions() {
-        // Projectile vs Bug collisions
+        // Simple, direct collision detection - no complex deferred removal
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
             const projectile = this.projectiles[i];
+            if (!projectile) continue;
 
-            for (let j = this.bugs.length - 1; j >= 0; j--) {
+            let hasHit = false;
+
+            // Check bugs first - remove projectile immediately after first hit
+            for (let j = this.bugs.length - 1; j >= 0 && !hasHit; j--) {
                 const bug = this.bugs[j];
 
                 if (this.isColliding(projectile, bug)) {
-                    // Collision detected and processed
-
-                    // Remove projectile and bug
+                    // Immediate removal - no deferred processing
                     this.removeProjectile(i);
                     this.removeBug(j);
 
@@ -468,45 +478,36 @@ class PipelineDefenderGame {
                         window.display.createScorePopup(bug.x + bug.width/2, bug.y, 10);
                     }
 
-                    break; // Projectile can only hit one bug
+                    hasHit = true; // Prevent checking other targets
                 }
             }
-        }
 
-        // Projectile vs PowerUp collisions
-        for (let i = this.projectiles.length - 1; i >= 0; i--) {
-            const projectile = this.projectiles[i];
+            // Only check power-ups if projectile hasn't hit a bug and still exists
+            if (!hasHit && i < this.projectiles.length && this.projectiles[i]) {
+                for (let j = this.powerUps.length - 1; j >= 0 && !hasHit; j--) {
+                    const powerUp = this.powerUps[j];
 
-            for (let j = this.powerUps.length - 1; j >= 0; j--) {
-                const powerUp = this.powerUps[j];
+                    if (this.isColliding(projectile, powerUp)) {
+                        // Immediate removal
+                        this.removeProjectile(i);
+                        this.removePowerUp(j);
 
-                if (this.isColliding(projectile, powerUp)) {
-                    // Remove projectile and power-up
-                    this.removeProjectile(i);
-                    this.removePowerUp(j);
+                        // Collect power-up
+                        this.collectPowerUp(powerUp);
 
-                    // Collect power-up
-                    this.collectPowerUp(powerUp);
-
-                    break; // Projectile can only hit one power-up
+                        hasHit = true; // Prevent further processing
+                    }
                 }
             }
         }
     }
 
-    isColliding(obj1, obj2) {
-        const collision = obj1.x < obj2.x + obj2.width &&
-                         obj1.x + obj1.width > obj2.x &&
-                         obj1.y < obj2.y + obj2.height &&
-                         obj1.y + obj1.height > obj2.y;
-
-        // Debug collision bounds
-        if (collision) {
-            // Debug: Collision bounds calculated
-            // Debug: Collision bounds calculated
-        }
-
-        return collision;
+    isColliding(projectile, target) {
+        // Simple box collision detection - reliable and fast
+        return projectile.x < target.x + target.width &&
+               projectile.x + projectile.width > target.x &&
+               projectile.y < target.y + target.height &&
+               projectile.y + projectile.height > target.y;
     }
 
     removeProjectile(index) {
@@ -584,7 +585,8 @@ class PipelineDefenderGame {
             y: this.player.y - 15, // Start 15px above player (both using top-based coordinates)
             width: this.config.projectileSize,
             height: 12,
-            size: this.config.projectileSize
+            size: this.config.projectileSize,
+            hasCollided: false
         };
 
         console.error('SHOOT: Player at Y:', this.player.y, 'Projectile created at Y:', projectile.y);
@@ -604,8 +606,8 @@ class PipelineDefenderGame {
             console.error('❌ window.display not available for projectile creation');
         }
 
-        // Vibration feedback on mobile
-        if (window.input) {
+        // Vibration feedback on mobile (disabled - not supported in all browsers)
+        if (window.input && window.input.vibrate) {
             window.input.vibrate([30]);
         }
     }

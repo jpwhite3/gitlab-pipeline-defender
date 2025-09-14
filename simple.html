@@ -193,9 +193,7 @@
                 }
                 if (e.key === ' ') {
                     console.error('Shooting! Projectiles:', window.game?.projectiles?.length);
-                    if (window.game) {
-                        window.game.shoot();
-                    }
+                    // Shooting is now handled by input.js to avoid duplicates
                 }
 
                 // Update display
