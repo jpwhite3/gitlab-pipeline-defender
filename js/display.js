@@ -16,9 +16,12 @@ class DisplayManager {
     initializeDisplay() {
         this.gameArea = document.getElementById('game-area');
         if (!this.gameArea) {
-            console.error('Game area not found!');
+            console.error('Game area not found! DisplayManager will work in limited mode.');
+            // Continue with limited functionality instead of failing completely
             return;
         }
+
+        console.log('✅ Game area found, initializing display system');
 
         // Create effects container for explosions, score popups, etc.
         this.effectsContainer = document.createElement('div');
@@ -74,20 +77,24 @@ class DisplayManager {
             position: absolute;
             left: ${projectileData.x}px;
             top: ${projectileData.y}px;
-            width: 8px; /* Fixed width */
-            height: 20px; /* Fixed height */
-            background: radial-gradient(circle, var(--primary-color) 0%, #66fcf1 100%);
-            border-radius: clamp(3px, 0.3vw, 5px); /* Smaller responsive radius */
-            box-shadow: 0 0 clamp(8px, 1.5vw, 15px) var(--primary-color),
-                        0 0 clamp(3px, 0.5vw, 6px) rgba(255, 255, 255, 0.5); /* Smaller responsive glow */
-            border: clamp(1px, 0.2vw, 2px) solid rgba(255, 255, 255, 0.8); /* Smaller responsive border */
-            z-index: 3;
+            width: 12px; /* Made larger for visibility */
+            height: 24px; /* Made larger for visibility */
+            background: radial-gradient(circle, #00ff00 0%, #66fcf1 100%); /* Brighter green */
+            border-radius: 6px;
+            box-shadow: 0 0 15px #00ff00, 0 0 6px rgba(255, 255, 255, 0.8); /* Brighter glow */
+            border: 2px solid rgba(255, 255, 255, 1); /* Solid white border */
+            z-index: 100; /* Higher z-index to ensure visibility */
             animation: projectile-glow 0.3s ease-out;
         `;
 
         this.gameArea.appendChild(projectileElement);
         this.gameObjects.set(projectileData.id, projectileElement);
-        // Projectile created and tracked
+
+        // Force immediate DOM update and reflow to ensure visibility
+        projectileElement.offsetHeight; // Trigger reflow
+        projectileElement.style.display = 'block'; // Force display
+
+        console.error('Projectile created:', projectileData.id, 'at position:', projectileData.x, projectileData.y);
 
         return projectileElement;
     }
@@ -96,6 +103,8 @@ class DisplayManager {
         const element = this.gameObjects.get(projectileData.id);
         if (element) {
             element.style.top = `${projectileData.y}px`;
+            // Ensure visibility on position updates
+            element.style.display = 'block';
         }
     }
 
@@ -421,6 +430,7 @@ class DisplayManager {
         if (scoreElement) {
             const prevScore = parseInt(scoreElement.textContent) || 0;
             scoreElement.textContent = score.toLocaleString();
+            console.log('🔄 Score updated:', score);
 
             // Animate score change
             if (score > prevScore) {
@@ -429,6 +439,8 @@ class DisplayManager {
                     scoreElement.style.animation = 'glow 0.5s ease-out';
                 }, 10);
             }
+        } else {
+            console.warn('❌ Score display element not found!');
         }
     }
 
@@ -436,6 +448,7 @@ class DisplayManager {
         const timerElement = document.getElementById('timer-display');
         if (timerElement) {
             timerElement.textContent = timeLeft;
+            console.log('⏰ Timer updated:', timeLeft);
 
             // Add warning styling for low time
             if (timeLeft <= 10) {
@@ -567,6 +580,28 @@ class DisplayManager {
     }
 
     // Game area dimensions
+    // HUD visibility check
+    ensureHUDVisible() {
+        const hudElement = document.getElementById('game-hud');
+        if (hudElement) {
+            const computedStyle = getComputedStyle(hudElement);
+            console.log('🔍 HUD visibility check:', {
+                display: computedStyle.display,
+                visibility: computedStyle.visibility,
+                opacity: computedStyle.opacity,
+                zIndex: computedStyle.zIndex
+            });
+
+            // Force visibility if needed
+            if (computedStyle.display === 'none') {
+                hudElement.style.display = 'flex';
+                console.log('✅ Forced HUD display to flex');
+            }
+        } else {
+            console.error('❌ HUD element not found!');
+        }
+    }
+
     getGameAreaDimensions() {
         if (!this.gameArea) return { width: 0, height: 0 };
 
@@ -647,14 +682,4 @@ additionalStyles.textContent = `
 
 document.head.appendChild(additionalStyles);
 
-// Initialize display manager when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    window.display = new DisplayManager();
-
-    // Handle window resize
-    window.addEventListener('resize', () => {
-        if (window.display) {
-            window.display.handleResize();
-        }
-    });
-});
+// Display will be initialized by init.js

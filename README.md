@@ -38,9 +38,11 @@ Simply open `index.html` in your web browser - no installation required!
 ## 🎲 How to Play
 
 ### Controls
-- **Desktop**: Arrow keys (←/→) to move, Spacebar to shoot
-- **Mobile**: Touch controls for movement and shooting
-- **Navigation**: Tab to navigate menus, Enter to select, ESC to go back
+- **Movement**: Arrow keys (←/→) or WASD keys
+- **Shooting**: Spacebar only
+- **Navigation**: Tab to navigate menus, Enter to select, ESC to pause/go back
+
+*Note: This is a keyboard-only game. No mouse or touch support.*
 
 ### Game Mechanics
 

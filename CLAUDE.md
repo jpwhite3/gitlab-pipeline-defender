@@ -25,7 +25,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ├── js/
 │   ├── game.js           # Core game logic and state management
 │   ├── display.js        # DOM rendering and visual updates
-│   ├── input.js          # Keyboard/touch input handling
+│   ├── input.js          # Keyboard input handling only
 │   ├── screens.js        # Screen navigation and UI management
 │   └── leaderboard.js    # Score persistence and leaderboard
 └── images/               # Game assets (bugs, tanuki, etc.)
@@ -46,9 +46,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Objects positioned using pixel coordinates
 
 ### Input System (input.js)
-- `InputManager` handles keyboard and touch events
-- Arrow keys for movement, spacebar for shooting
-- Mobile touch support for movement and shooting
+- `InputHandler` handles keyboard events only (no mouse/touch support)
+- Arrow keys/WASD for movement, **SPACEBAR ONLY** for shooting
+- No mobile/touch support - keyboard-only game
 
 ## Common Development Commands
 
@@ -64,7 +64,7 @@ python -m http.server 8000
 ### Testing
 - No automated test suite - manual testing in browser required
 - Test on multiple browsers (Chrome, Firefox, Safari)
-- Test mobile/touch interactions
+- Keyboard-only input - no mobile/touch support needed
 
 ### Debugging
 - Use browser DevTools console for game state inspection

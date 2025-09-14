@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pipeline Defender - Simple Version</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/screens.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <style>
+        #game-canvas {
+            background: #000;
+            display: block;
+        }
+        #game-area {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <div id="crt-monitor">
+        <div id="screen">
+            <!-- Game Screen Only -->
+            <div id="game-screen" class="game-screen active">
+                <div id="game-hud">
+                    <div class="hud-left">
+                        <div class="hud-item">
+                            <span class="hud-label">SCORE:</span>
+                            <span id="score-display" class="hud-value">0</span>
+                        </div>
+                        <div class="hud-item">
+                            <span class="hud-label">TIME:</span>
+                            <span id="timer-display" class="hud-value">90</span>
+                        </div>
+                    </div>
+
+                    <div class="hud-right">
+                        <div class="pipeline-status">
+                            <div class="pipeline-items">
+                                <h3>PIPELINE STATUS</h3>
+                                <div id="pipeline-test" class="pipeline-item">
+                                    <span class="pipeline-icon">🧪</span>
+                                    <span>TEST</span>
+                                </div>
+                                <div id="pipeline-csm" class="pipeline-item">
+                                    <span class="pipeline-icon">🔐</span>
+                                    <span>CSM</span>
+                                </div>
+                                <div id="pipeline-sec" class="pipeline-item">
+                                    <span class="pipeline-icon">🛡️</span>
+                                    <span>SEC</span>
+                                </div>
+                                <div id="pipeline-qual" class="pipeline-item">
+                                    <span class="pipeline-icon">✅</span>
+                                    <span>QUAL</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="game-area">
+                    <canvas id="game-canvas" width="1136" height="626"></canvas>
+                    <!-- Visual debug info -->
+                    <div id="debug-overlay" style="position: absolute; top: 10px; left: 10px; color: white; font-family: monospace; font-size: 12px; z-index: 1000; background: rgba(0,0,0,0.7); padding: 5px;">
+                        Debug Info
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NO DEBUG SYSTEM - Load minimal scripts only -->
+    <script>
+        // Re-enable console for debugging
+        // console.log = () => {};
+        // console.warn = () => {};
+        // console.error = (...args) => { /* Only show real errors */ };
+    </script>
+
+    <script src="js/canvas-display.js"></script>
+    <script src="js/input.js"></script>
+    <script src="js/game.js"></script>
+
+    <script>
+        // Simple initialization without debug spam
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.error('Starting simple initialization');
+
+            try {
+                // Create a minimal screen manager mock
+                window.screens = {
+                    isGameActive: () => true,
+                    currentScreen: 'game-screen',
+                    endGame: (result) => {
+                        console.error('Game ended:', result);
+                        alert(result.success ? 'You Win!' : 'Game Over: ' + result.message);
+                    }
+                };
+
+                // Initialize canvas display (async)
+                window.display = new CanvasDisplayManager();
+                await window.display.init();
+                console.error('Canvas Display OK');
+
+                // Check if images loaded
+                const imageCount = Object.keys(window.display.images).length;
+                if (imageCount === 0) {
+                    console.error('⚠️  No images loaded! To see Tanuki and bug graphics:');
+                    console.error('   Run: python -m http.server 8000');
+                    console.error('   Then open: http://localhost:8000/simple.html');
+                }
+
+                // Initialize input
+                window.input = new InputHandler();
+                console.error('Input OK');
+
+                // Initialize game
+                window.game = new PipelineDefenderGame();
+                console.error('Game OK');
+
+                // Start game after 1 second
+                setTimeout(() => {
+                    console.error('Starting game...');
+                    console.error('Initial projectiles array:', window.game.projectiles);
+                    console.error('Initial bugs array:', window.game.bugs);
+                    window.game.startNewGame();
+
+                    // Log player position for debugging
+                    setTimeout(() => {
+                        console.error('PLAYER POSITION:', window.game?.player);
+                        console.error('GAME DIMENSIONS:', window.game?.gameWidth, 'x', window.game?.gameHeight);
+
+                        // Visual debug overlay
+                        const debugOverlay = document.getElementById('debug-overlay');
+                        if (debugOverlay && window.game) {
+                            const updateDebug = () => {
+                                const player = window.game.player;
+                                debugOverlay.innerHTML = `
+                                    Player: (${Math.round(player?.x || 0)}, ${Math.round(player?.y || 0)})<br>
+                                    Game: ${window.game.gameWidth}x${window.game.gameHeight}<br>
+                                    Projectiles: ${window.game.projectiles?.length || 0}<br>
+                                    Bugs: ${window.game.bugs?.length || 0}
+                                `;
+                            };
+                            setInterval(updateDebug, 100);
+                            updateDebug();
+                        }
+                    }, 500);
+
+                    // Add a test bug after 2 seconds
+                    setTimeout(() => {
+                        if (window.game && window.display) {
+                            const testBug = {
+                                id: window.game.nextBugId++,  // Use proper numeric ID from game
+                                x: 300,
+                                y: 100,
+                                width: 40,
+                                height: 40,
+                                size: 40,  // Add size property for display
+                                type: 'Functional Errors'
+                            };
+                            window.game.bugs.push(testBug);
+                            window.display.createBug(testBug);
+                            console.error('Test bug created at:', testBug.x, testBug.y);
+                            console.error('After bug creation - Projectiles array:', window.game.projectiles);
+                            console.error('After bug creation - Bugs array:', window.game.bugs);
+                        }
+                    }, 2000);
+                }, 1000);
+
+            } catch (error) {
+                console.error('Init error:', error);
+            }
+        });
+
+        // Add simple key testing and manual movement
+        document.addEventListener('keydown', (e) => {
+            console.error('Key pressed:', e.key);
+
+            // Manual movement testing
+            if (window.game && window.game.player) {
+                const player = window.game.player;
+                console.error('Player position before:', player.x);
+
+                if (e.key === 'ArrowLeft' || e.key === 'a') {
+                    player.x -= 20;
+                    console.error('Moving left to:', player.x);
+                }
+                if (e.key === 'ArrowRight' || e.key === 'd') {
+                    player.x += 20;
+                    console.error('Moving right to:', player.x);
+                }
+                if (e.key === ' ') {
+                    console.error('Shooting! Projectiles:', window.game?.projectiles?.length);
+                    if (window.game) {
+                        window.game.shoot();
+                    }
+                }
+
+                // Update display
+                if (window.display) {
+                    window.display.updatePlayer({
+                        x: player.x,
+                        y: player.y
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>

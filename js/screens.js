@@ -98,21 +98,61 @@ class ScreenManager {
     }
 
     startInitialSequence() {
+        console.log('🎬 Starting initial sequence...');
+
         // Simulate loading progress
         const progressBar = document.querySelector('.progress-bar-fill');
         setTimeout(() => {
             progressBar.style.width = '100%';
         }, 500);
 
-        // Show intro sequence after loading
-        setTimeout(() => {
-            if (!this.introSequenceCompleted) {
-                this.showScreen('intro-screen');
-                this.playIntroSequence();
-            } else {
-                this.showScreen('menu-screen');
+        // Wait for game initialization to complete
+        this.waitForInitialization();
+    }
+
+    waitForInitialization() {
+        console.log('⏳ Waiting for system initialization...');
+
+        const startTime = Date.now();
+        const maxWaitTime = 10000; // 10 seconds max wait time
+
+        const checkInitialization = () => {
+            const elapsed = Date.now() - startTime;
+
+            if (elapsed > maxWaitTime) {
+                console.warn('⚠️ Initialization timeout, proceeding anyway');
+                this.proceedToNextScreen();
+                return;
             }
-        }, 3500);
+
+            if (window.gameInitializer) {
+                const status = window.gameInitializer.getStatus();
+                const allInitialized = Object.values(status.initialized).every(val => val === true);
+
+                if (allInitialized) {
+                    console.log('✅ All systems initialized, proceeding to intro');
+                    this.proceedToNextScreen();
+                } else {
+                    console.log('⏳ Still waiting for:', Object.entries(status.initialized).filter(([k, v]) => !v).map(([k]) => k));
+                    setTimeout(checkInitialization, 500);
+                }
+            } else {
+                console.log('⏳ Game initializer not ready yet');
+                setTimeout(checkInitialization, 500);
+            }
+        };
+
+        // Start checking after a brief delay
+        setTimeout(checkInitialization, 1000);
+    }
+
+    proceedToNextScreen() {
+        if (!this.introSequenceCompleted) {
+            this.showScreen('intro-screen');
+            this.playIntroSequence();
+        } else {
+            this.showScreen('menu-screen');
+        }
     }
 
     playIntroSequence() {
@@ -431,6 +471,4 @@ class ScreenManager {
 }
 
 // Initialize screen manager when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    window.screens = new ScreenManager();
-});
+// Screens will be initialized by init.js

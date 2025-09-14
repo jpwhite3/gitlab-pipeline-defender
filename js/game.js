@@ -76,21 +76,38 @@ class PipelineDefenderGame {
     }
 
     updateGameBounds() {
-        if (window.display) {
-            const dimensions = window.display.getGameAreaDimensions();
-            // Debug: dimensions logged for development
-            this.gameWidth = Math.max(dimensions.width, 400); // Minimum width
-            this.gameHeight = Math.max(dimensions.height, 300); // Minimum height
+        if (window.display && window.display.gameArea && typeof window.display.getGameAreaDimensions === 'function') {
+            try {
+                const dimensions = window.display.getGameAreaDimensions();
+                console.log('Display dimensions:', dimensions);
+                // Ensure we have valid dimensions
+                if (dimensions.width > 0 && dimensions.height > 0) {
+                    this.gameWidth = Math.max(dimensions.width, 400); // Minimum width
+                    this.gameHeight = Math.max(dimensions.height, 300); // Minimum height
+                } else {
+                    throw new Error('Invalid dimensions returned');
+                }
+            } catch (error) {
+                console.warn('Error getting display dimensions, using fallback:', error);
+                this.gameWidth = 800; // fallback
+                this.gameHeight = 600;
+            }
         } else {
+            console.log('Display not fully available, using fallback dimensions');
             this.gameWidth = 800; // fallback
             this.gameHeight = 600;
         }
-        // Game bounds updated successfully
+
+        console.log('Game bounds set to:', { width: this.gameWidth, height: this.gameHeight });
 
         // Debug: Log actual game area element dimensions
         if (window.display && window.display.gameArea) {
-            const rect = window.display.gameArea.getBoundingClientRect();
-            // Debug: game area rect logged for development
+            try {
+                const rect = window.display.gameArea.getBoundingClientRect();
+                console.log('Game area DOM rect:', rect);
+            } catch (error) {
+                console.warn('Error getting game area rect:', error);
+            }
         }
     }
 
@@ -105,7 +122,7 @@ class PipelineDefenderGame {
     }
 
     startNewGame() {
-        // Starting new game
+        console.log('🎮 Starting new game...');
 
         // Ensure any previous game is fully stopped
         this.isRunning = false;
@@ -113,6 +130,9 @@ class PipelineDefenderGame {
             clearInterval(this.timerInterval);
             this.timerInterval = null;
         }
+
+        // Update game bounds first
+        this.updateGameBounds();
 
         // Reset game state
         this.gameState = 'playing';
@@ -141,14 +161,22 @@ class PipelineDefenderGame {
         this.nextBugId = 1;
         this.nextPowerUpId = 1;
 
-        // Update game bounds in case of resize
-        this.updateGameBounds();
+        // Reset player after bounds are set
         this.resetPlayer();
+
+        console.log('Game state reset:', {
+            gameState: this.gameState,
+            gameWidth: this.gameWidth,
+            gameHeight: this.gameHeight,
+            playerPosition: this.player,
+            isRunning: this.isRunning
+        });
 
         // Clear display with error handling
         if (window.display) {
             try {
                 window.display.clearGameObjects();
+                window.display.ensureHUDVisible(); // Ensure HUD is visible
             } catch (error) {
                 console.error('Error during cleanup, continuing anyway:', error);
             }
@@ -176,10 +204,20 @@ class PipelineDefenderGame {
             this.lastFrameTime = timestamp;
 
             if (!this.isPaused) {
-                this.update(deltaTime);
+                try {
+                    this.update(deltaTime);
+                    this.render(); // Add canvas rendering
+                } catch (error) {
+                    console.error('Error in game loop:', error);
+                    this.endGame(false, 'Game error occurred');
+                    return;
+                }
             }
 
-            requestAnimationFrame(this.gameLoop);
+            // Only continue game loop if still running
+            if (this.isRunning) {
+                requestAnimationFrame(this.gameLoop);
+            }
         };
     }
 
@@ -254,7 +292,13 @@ class PipelineDefenderGame {
     updateProjectiles() {
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
             const projectile = this.projectiles[i];
+            const oldY = projectile.y;
             projectile.y -= this.config.projectileSpeed; // Move up (decrease y)
+
+            if (i === 0) { // Log first projectile for debugging
+                console.error('PROJECTILE UPDATE: ID', projectile.id, 'Y:', oldY, '->', projectile.y, 'Speed:', this.config.projectileSpeed);
+                console.error('PROJECTILE OBJECT:', JSON.stringify(projectile, null, 2));
+            }
 
             // Remove if off screen (top)
             if (projectile.y < -projectile.height) {
@@ -277,8 +321,11 @@ class PipelineDefenderGame {
             const bug = this.bugs[i];
             bug.y += this.config.bugSpeed;
 
-            // Check if bug reached the player (game over)
-            if (bug.y + bug.height >= this.player.y) {
+            // Check if bug reached the bottom of game area (game over)
+            // Give some buffer space before player position
+            const bottomBuffer = 30; // pixels above player where game ends
+            if (bug.y + bug.height >= this.gameHeight - bottomBuffer) {
+                console.log('Bug reached bottom:', bug.y + bug.height, 'vs threshold:', this.gameHeight - bottomBuffer);
                 this.endGame(false, 'A bug breached the pipeline! Mission failed.');
                 return;
             }
@@ -540,6 +587,8 @@ class PipelineDefenderGame {
             size: this.config.projectileSize
         };
 
+        console.error('SHOOT: Player at Y:', this.player.y, 'Projectile created at Y:', projectile.y);
+
         this.projectiles.push(projectile);
 
         if (window.display) {
@@ -677,6 +726,19 @@ class PipelineDefenderGame {
         };
     }
 
+    // Canvas rendering method
+    render() {
+        if (window.display && window.display.render) {
+            const gameState = {
+                player: this.player,
+                projectiles: this.projectiles,
+                bugs: this.bugs,
+                powerUps: this.powerUps
+            };
+            window.display.render(gameState);
+        }
+    }
+
     // Cleanup
     destroy() {
         this.isRunning = false;
@@ -691,14 +753,4 @@ class PipelineDefenderGame {
     }
 }
 
-// Initialize game when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    window.game = new PipelineDefenderGame();
-
-    // Handle window unload
-    window.addEventListener('beforeunload', () => {
-        if (window.game) {
-            window.game.destroy();
-        }
-    });
-});
+// Game will be initialized by init.js

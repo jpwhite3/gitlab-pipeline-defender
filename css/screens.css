@@ -222,7 +222,7 @@ p.keyboard-hint {
     background: rgba(0, 0, 0, 0.3);
     opacity: 0.5;
     transition: all 0.3s ease;
-    min-width: 50px; /* Fixed width */
+    min-width: 60px; /* Fixed width */
     border-radius: 4px; /* Fixed radius */
 }
 
