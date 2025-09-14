@@ -44,6 +44,11 @@ class PipelineDefenderGame {
             'Embedded Secrets': 0
         };
 
+        // Issue #12: Power-up frequency control (1 every 10 seconds with type cycling)
+        this.powerUpTimer = 0;
+        this.powerUpInterval = 10; // seconds between power-ups
+        this.currentPowerUpIndex = 0; // for cycling through power-up types
+
         // Game loop
         this.gameLoop = null;
         this.lastFrameTime = 0;
@@ -154,6 +159,10 @@ class PipelineDefenderGame {
             'Embedded Secrets': 0
         };
 
+        // Issue #12: Reset power-up timer and cycling index
+        this.powerUpTimer = 0;
+        this.currentPowerUpIndex = 0;
+
         // Clear objects
         this.projectiles = [];
         this.bugs = [];
@@ -236,6 +245,13 @@ class PipelineDefenderGame {
         this.timerInterval = setInterval(() => {
             if (!this.isPaused && this.isRunning) {
                 this.timeLeft--;
+
+                // Issue #12: Power-up timing control (1 every 10 seconds)
+                this.powerUpTimer++;
+                if (this.powerUpTimer >= this.powerUpInterval) {
+                    this.spawnPowerUp();
+                    this.powerUpTimer = 0; // Reset timer
+                }
 
                 if (window.display) {
                     window.display.updateTimer(this.timeLeft);
@@ -379,10 +395,8 @@ class PipelineDefenderGame {
             this.spawnBug();
         }
 
-        // Spawn power-ups
-        if (Math.random() < this.config.powerUpSpawnRate) {
-            this.spawnPowerUp();
-        }
+        // Issue #12: Power-ups now spawn via timer (every 10 seconds) instead of random probability
+        // Power-up spawning moved to startTimer() method
     }
 
     spawnBug() {
@@ -417,8 +431,9 @@ class PipelineDefenderGame {
     }
 
     spawnPowerUp() {
-        // All power-up types can spawn multiple times for continuous scoring
-        const powerUpType = this.powerUpTypes[Math.floor(Math.random() * this.powerUpTypes.length)];
+        // Issue #12: Cycle through power-up types instead of random selection
+        const powerUpType = this.powerUpTypes[this.currentPowerUpIndex];
+        this.currentPowerUpIndex = (this.currentPowerUpIndex + 1) % this.powerUpTypes.length;
 
         const powerUp = {
             id: this.nextPowerUpId++,
