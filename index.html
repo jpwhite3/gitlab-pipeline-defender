@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pipeline Defender - GitLab CI/CD Defense Game</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/screens.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+    <div id="crt-monitor">
+        <div id="screen">
+
+            <!-- Loading Screen -->
+            <div id="loading-screen" class="game-screen active">
+                <div class="screen-content">
+                    <img src="images/gitlab-tanuki.png" alt="GitLab Logo" class="gitlab-logo">
+                    <p class="loading-text">PIPELINE EXECUTING</p>
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Intro Sequence Screen -->
+            <div id="intro-screen" class="game-screen">
+                <div class="screen-content">
+                    <div class="intro-monitor">
+                        <div class="intro-screen-content">
+                            <img src="images/gitlab-tanuki.png" alt="GitLab Logo" class="intro-logo">
+                            <div class="code-lines">
+                                <div class="code-line">$ gitlab-ci pipeline start</div>
+                                <div class="code-line">Initializing CI/CD Pipeline...</div>
+                                <div class="code-line typing-animation">ERROR: Bugs detected in pipeline!</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="transformation-text">
+                        <p>The system is under attack! You must become the Tanuki defender...</p>
+                        <p class="skip-hint">Press ESC or ENTER to skip</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Menu Screen -->
+            <div id="menu-screen" class="game-screen">
+                <div class="screen-content">
+                    <div class="title-section">
+                        <h1 class="game-title">PIPELINE DEFENDER</h1>
+                        <img src="images/gitlab-tanuki.png" alt="GitLab Tanuki" class="menu-tanuki">
+                        <p class="subtitle">Defend the CI/CD Pipeline from Software Bugs</p>
+                        <p class="keyboard-hint">Use TAB to navigate • ENTER to select • ESC to go back</p>
+                    </div>
+
+                    <div class="menu-actions">
+                        <button id="start-new-game-btn" class="btn primary">Start New Game</button>
+                        <button id="view-instructions-btn" class="btn">Instructions</button>
+                        <button id="view-leaderboard-btn" class="btn">Leaderboard</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructions Screen -->
+            <div id="instructions-screen" class="game-screen">
+                <div class="screen-content">
+                    <h2>-- Mission Briefing --</h2>
+                    <div class="instructions-content">
+                        <div class="mission-objective">
+                            <h3>OBJECTIVE:</h3>
+                            <p>Clear all bugs from the pipeline by collecting all 4 power-ups (TEST, CSM, SEC, QUAL)</p>
+                        </div>
+
+                        <div class="bug-types">
+                            <h3>ENEMY BUGS:</h3>
+                            <div class="bug-showcase">
+                                <div class="bug-item">
+                                    <img src="images/functional-bug.png" alt="Functional Bug">
+                                    <span>Functional Errors</span>
+                                </div>
+                                <div class="bug-item">
+                                    <img src="images/security-bug.png" alt="Security Bug">
+                                    <span>Security Bugs</span>
+                                </div>
+                                <div class="bug-item">
+                                    <img src="images/code-quality-bug.png" alt="Quality Bug">
+                                    <span>Quality Bugs</span>
+                                </div>
+                                <div class="bug-item">
+                                    <img src="images/embedded-secret-bug.png" alt="Secrets Bug">
+                                    <span>Embedded Secrets</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="controls">
+                            <h3>CONTROLS:</h3>
+                            <p>← → Arrow keys to move | SPACEBAR to shoot | Touch controls on mobile</p>
+                        </div>
+
+                        <div class="win-condition">
+                            <h3>WIN CONDITION:</h3>
+                            <p>Collect all 4 power-ups before time runs out or bugs reach the bottom!</p>
+                        </div>
+                    </div>
+
+                    <div class="menu-actions">
+                        <button id="start-from-instructions-btn" class="btn primary">Begin Mission</button>
+                        <button id="back-to-menu-btn" class="btn">Back to Menu</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Screen -->
+            <div id="game-screen" class="game-screen">
+                <div id="game-hud">
+                    <div class="hud-left">
+                        <div class="hud-item">
+                            <span class="hud-label">SCORE:</span>
+                            <span id="score-display" class="hud-value">0</span>
+                        </div>
+                        <div class="hud-item">
+                            <span class="hud-label">TIME:</span>
+                            <span id="timer-display" class="hud-value">90</span>
+                        </div>
+                    </div>
+
+                    <div class="hud-right">
+                        <div class="pipeline-status">
+                            <div class="pipeline-items">
+                                <h3>PIPELINE STATUS</h3>
+                                <div id="pipeline-test" class="pipeline-item">
+                                    <span class="pipeline-icon">🧪</span>
+                                    <span>TEST</span>
+                                </div>
+                                <div id="pipeline-csm" class="pipeline-item">
+                                    <span class="pipeline-icon">🔐</span>
+                                    <span>CSM</span>
+                                </div>
+                                <div id="pipeline-sec" class="pipeline-item">
+                                    <span class="pipeline-icon">🛡️</span>
+                                    <span>SEC</span>
+                                </div>
+                                <div id="pipeline-qual" class="pipeline-item">
+                                    <span class="pipeline-icon">✅</span>
+                                    <span>QUAL</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="game-area">
+                    <div id="tanuki" class="game-object">
+                        <img src="images/gitlab-tanuki.png" alt="Tanuki Player">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Over Screen -->
+            <div id="game-over-screen" class="game-screen">
+                <div class="screen-content">
+                    <h1 id="game-result-title">MISSION COMPLETE</h1>
+                    <div class="final-score-section">
+                        <h2>Final Score: <span id="final-score-display">0</span></h2>
+                        <div id="completion-status" class="completion-status">
+                            <span id="pipeline-completion-text">Pipeline Status: SECURED</span>
+                        </div>
+                    </div>
+
+                    <div id="game-stats" class="stats-table">
+                        <table>
+                            <tr>
+                                <td>Mission Time:</td>
+                                <td><span id="stat-time-taken">0</span>s</td>
+                                <td>Bugs Eliminated:</td>
+                                <td><span id="stat-bugs-killed">0</span></td>
+                            </tr>
+                            <tr>
+                                <td>Functional Bugs:</td>
+                                <td><span id="stat-functional">0</span></td>
+                                <td>Security Bugs:</td>
+                                <td><span id="stat-security">0</span></td>
+                            </tr>
+                            <tr>
+                                <td>Quality Bugs:</td>
+                                <td><span id="stat-quality">0</span></td>
+                                <td>Secret Leaks:</td>
+                                <td><span id="stat-secrets">0</span></td>
+                            </tr>
+                            <tr>
+                                <td>Power-ups Collected:</td>
+                                <td colspan="3"><span id="stat-powerups">0/4</span></td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="name-entry-section">
+                        <label for="player-name-input">Enter your name for the leaderboard:</label>
+                        <input type="text" id="player-name-input" maxlength="12" placeholder="DEFENDER">
+                    </div>
+
+                    <div class="menu-actions">
+                        <button id="submit-score-btn" class="btn primary">Submit Score</button>
+                        <button id="play-again-btn" class="btn">Play Again</button>
+                        <button id="menu-from-game-over-btn" class="btn">Main Menu</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leaderboard Screen -->
+            <div id="leaderboard-screen" class="game-screen">
+                <div class="screen-content">
+                    <h2>-- HALL OF DEFENDERS --</h2>
+
+                    <div class="leaderboard-stats">
+                        <p>Total Missions Completed: <span id="total-games-count">0</span></p>
+                        <p>Successful Pipeline Defenses: <span id="successful-completions">0</span></p>
+                    </div>
+
+                    <div class="leaderboard-table">
+                        <table id="leaderboard-list">
+                            <thead>
+                                <tr>
+                                    <th>RANK</th>
+                                    <th>DEFENDER</th>
+                                    <th>SCORE</th>
+                                    <th>STATUS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Leaderboard entries will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="menu-actions">
+                        <button id="menu-from-leaderboard-btn" class="btn">Back to Menu</button>
+                        <button id="reset-scores-btn" class="btn secondary">Reset Scores</button>
+                        <button id="export-data-btn" class="btn secondary">Export Data</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="js/screens.js"></script>
+    <script src="js/leaderboard.js"></script>
+    <script src="js/input.js"></script>
+    <script src="js/display.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>

@@ -1,0 +1,383 @@
+/* ==== GENERAL ANIMATIONS ==== */
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slide-in-left {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slide-in-right {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes type-in {
+    from {
+        opacity: 0;
+        width: 0;
+    }
+    to {
+        opacity: 1;
+        width: 100%;
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 10px var(--primary-color);
+    }
+    50% {
+        box-shadow: 0 0 25px var(--primary-color);
+    }
+}
+
+/* ==== INTRO SEQUENCE ANIMATIONS ==== */
+
+/* Removed vortex animation - not needed */
+
+.typing-animation {
+    animation: type-in 2s ease-out forwards, blink-cursor 1s infinite;
+}
+
+@keyframes blink-cursor {
+    0%, 50% {
+        border-right: 2px solid var(--primary-color);
+    }
+    51%, 100% {
+        border-right: 2px solid transparent;
+    }
+}
+
+/* ==== GAME OBJECT ANIMATIONS ==== */
+
+.bug {
+    animation: bug-descent 0.1s linear infinite;
+}
+
+@keyframes bug-descent {
+    0% {
+        transform: translateY(0) rotate(0deg);
+    }
+    100% {
+        transform: translateY(1px) rotate(2deg);
+    }
+}
+
+.power-up {
+    animation: power-up-float 2s ease-in-out infinite, power-up-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes power-up-float {
+    0%, 100% {
+        transform: translateY(0px) scale(1);
+    }
+    50% {
+        transform: translateY(-5px) scale(1.05);
+    }
+}
+
+@keyframes power-up-glow {
+    0%, 100% {
+        filter: drop-shadow(0 0 5px rgba(0, 255, 0, 0.3));
+    }
+    50% {
+        filter: drop-shadow(0 0 15px rgba(0, 255, 0, 0.8));
+    }
+}
+
+.projectile {
+    animation: projectile-trail 0.1s linear infinite;
+}
+
+@keyframes projectile-trail {
+    0% {
+        box-shadow: 0 0 5px var(--primary-color);
+    }
+    100% {
+        box-shadow: 0 0 10px var(--primary-color), 0 5px 5px rgba(0, 255, 0, 0.3);
+    }
+}
+
+/* ==== EXPLOSION ANIMATION ==== */
+
+.explosion {
+    animation: explode 0.5s ease-out forwards;
+    z-index: 1000;
+}
+
+@keyframes explode {
+    0% {
+        opacity: 1;
+        transform: scale(0.1) rotate(0deg);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1) rotate(180deg);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.5) rotate(360deg);
+    }
+}
+
+/* ==== SCORE POPUP ANIMATION ==== */
+
+.score-popup {
+    position: absolute;
+    font-family: 'VT323', monospace;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--primary-color);
+    text-shadow: 0 0 5px var(--primary-color);
+    animation: score-rise 1.5s ease-out forwards;
+    z-index: 999;
+}
+
+@keyframes score-rise {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    30% {
+        opacity: 1;
+        transform: translateY(-20px) scale(1.2);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-60px) scale(0.8);
+    }
+}
+
+.score-popup.big {
+    font-size: 1.8em;
+    color: var(--gitlab-orange);
+    text-shadow: 0 0 10px var(--gitlab-orange);
+}
+
+/* ==== POWER-UP COLLECTION ANIMATION ==== */
+
+.power-up-collected {
+    animation: power-up-collect 1s ease-out forwards;
+}
+
+@keyframes power-up-collect {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+        filter: brightness(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.5);
+        filter: brightness(2) hue-rotate(90deg);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.1);
+        filter: brightness(3) hue-rotate(180deg);
+    }
+}
+
+/* ==== SCREEN TRANSITION ANIMATIONS ==== */
+
+.screen-transition-in {
+    animation: screen-slide-in 0.5s ease-out forwards;
+}
+
+.screen-transition-out {
+    animation: screen-slide-out 0.3s ease-in forwards;
+}
+
+@keyframes screen-slide-in {
+    from {
+        opacity: 0;
+        transform: translateY(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes screen-slide-out {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-100px);
+    }
+}
+
+/* ==== PIPELINE STATUS ANIMATIONS ==== */
+
+.pipeline-item.collecting {
+    animation: pipeline-activate 0.8s ease-out forwards;
+}
+
+@keyframes pipeline-activate {
+    0% {
+        transform: scale(1);
+        border-color: var(--border-color);
+    }
+    50% {
+        transform: scale(1.2);
+        border-color: var(--primary-color);
+        box-shadow: 0 0 20px var(--primary-color);
+    }
+    100% {
+        transform: scale(1);
+        border-color: var(--primary-color);
+        box-shadow: 0 0 10px var(--primary-color);
+    }
+}
+
+/* ==== WARNING ANIMATIONS ==== */
+
+.warning-flash {
+    animation: warning-blink 0.3s ease-in-out 3;
+}
+
+@keyframes warning-blink {
+    0%, 100% {
+        background-color: transparent;
+        border-color: var(--border-color);
+    }
+    50% {
+        background-color: rgba(255, 51, 51, 0.2);
+        border-color: var(--error-color);
+        box-shadow: 0 0 20px var(--error-color);
+    }
+}
+
+/* ==== GAME OVER ANIMATIONS ==== */
+
+.game-over-success {
+    animation: victory-celebration 2s ease-out forwards;
+}
+
+.game-over-failure {
+    animation: defeat-shake 1s ease-out forwards;
+}
+
+@keyframes victory-celebration {
+    0%, 10%, 20%, 30%, 40%, 50%, 60%, 70%, 80%, 90%, 100% {
+        transform: scale(1);
+    }
+    5%, 15%, 25%, 35%, 45%, 55%, 65%, 75%, 85%, 95% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes defeat-shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-10px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(10px);
+    }
+}
+
+/* ==== LEADERBOARD ANIMATIONS ==== */
+
+.leaderboard-entry {
+    animation: leaderboard-appear 0.3s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes leaderboard-appear {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.leaderboard-entry:nth-child(1) { animation-delay: 0.1s; }
+.leaderboard-entry:nth-child(2) { animation-delay: 0.2s; }
+.leaderboard-entry:nth-child(3) { animation-delay: 0.3s; }
+.leaderboard-entry:nth-child(4) { animation-delay: 0.4s; }
+.leaderboard-entry:nth-child(5) { animation-delay: 0.5s; }
+.leaderboard-entry:nth-child(6) { animation-delay: 0.6s; }
+.leaderboard-entry:nth-child(7) { animation-delay: 0.7s; }
+.leaderboard-entry:nth-child(8) { animation-delay: 0.8s; }
+.leaderboard-entry:nth-child(9) { animation-delay: 0.9s; }
+.leaderboard-entry:nth-child(10) { animation-delay: 1.0s; }
+
+/* ==== TOUCH/MOBILE FEEDBACK ANIMATIONS ==== */
+
+.touch-feedback {
+    animation: touch-ripple 0.6s ease-out forwards;
+}
+
+@keyframes touch-ripple {
+    0% {
+        transform: scale(0);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0;
+    }
+}
+
+/* ==== REDUCED MOTION SUPPORT ==== */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

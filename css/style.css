@@ -1,0 +1,273 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323:wght@400&display=swap');
+
+:root {
+    --primary-color: #00ff00;
+    --secondary-color: #45a29e;
+    --background-color: #0b0c10;
+    --screen-bg: #1a1a1a;
+    --error-color: #ff3333;
+    --warning-color: #ffff00;
+    --info-color: #00ffff;
+    --success-color: #00ff00;
+    --text-primary: #00ff00;
+    --text-secondary: #66fcf1;
+    --border-color: #333;
+    --gitlab-orange: #FC6D26;
+    --gitlab-red: #E24329;
+}
+
+/* Base Styles */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-primary);
+    font-family: 'VT323', monospace;
+    font-size: 16px; /* Fixed font size */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    user-select: none;
+}
+
+/* CRT Monitor Container - Smaller Responsive Scaling */
+#crt-monitor {
+    background-color: #000;
+    border: 10px solid #333; /* Fixed border */
+    border-radius: 15px; /* Fixed radius */
+    padding: 20px; /* Fixed padding */
+    width: 1200px; /* Fixed width */
+    height: 800px; /* Fixed height */
+    box-shadow:
+        0 0 20px rgba(0, 255, 0, 0.2), /* Fixed glow */
+        inset 0 0 15px rgba(0, 0, 0, 0.7); /* Fixed inset */
+    position: relative;
+    overflow: hidden;
+}
+
+/* CRT Screen Effects */
+#crt-monitor::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        linear-gradient(
+            transparent 50%,
+            rgba(0, 0, 0, 0.15) 50%
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255, 0, 0, 0.03),
+            rgba(0, 255, 0, 0.02),
+            rgba(0, 0, 255, 0.03)
+        );
+    background-size: 100% 4px, 6px 100%;
+    pointer-events: none;
+    z-index: 1000;
+    animation: flicker 0.3s infinite;
+}
+
+@keyframes flicker {
+    0%, 98% { opacity: 1; }
+    99% { opacity: 0.98; }
+    100% { opacity: 1; }
+}
+
+#screen {
+    width: 100%;
+    height: 100%;
+    background-color: var(--screen-bg);
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    border: 2px solid var(--border-color);
+}
+
+/* Screen Management */
+.game-screen {
+    display: none;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 20px;
+    background-color: var(--screen-bg);
+}
+
+.game-screen.active {
+    display: flex;
+    flex-direction: column;
+}
+
+.screen-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+}
+
+/* Typography */
+h1 {
+    font-size: 3em;
+    margin: 0.5em 0;
+    text-shadow: 0 0 10px var(--primary-color);
+    letter-spacing: 3px;
+}
+
+h2 {
+    font-size: 2em;
+    margin: 0.3em 0;
+    color: var(--text-secondary);
+    letter-spacing: 2px;
+}
+
+h3 {
+    font-size: 1.3em;
+    margin: 0.5em 0;
+    color: var(--secondary-color);
+    letter-spacing: 1px;
+}
+
+p {
+    line-height: 1.4;
+    margin: 0.5em 0;
+}
+
+/* Buttons - Smaller Responsive Scaling */
+.btn {
+    background: linear-gradient(145deg, var(--secondary-color), #2a7a77);
+    border: 2px solid var(--primary-color); /* Fixed border */
+    color: var(--background-color);
+    font-family: 'VT323', monospace;
+    font-size: 14px; /* Fixed font size */
+    font-weight: bold;
+    padding: 10px 20px; /* Fixed padding */
+    margin: 6px; /* Fixed margin */
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px; /* Fixed letter spacing */
+    box-shadow:
+        0 0 10px rgba(0, 255, 0, 0.3), /* Fixed glow */
+        inset 0 0 8px rgba(255, 255, 255, 0.1); /* Fixed inset */
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn:hover {
+    background: linear-gradient(145deg, #5bbab7, var(--secondary-color));
+    box-shadow:
+        0 0 40px rgba(0, 255, 0, 0.5), /* 2x glow */
+        inset 0 0 30px rgba(255, 255, 255, 0.2); /* 2x inset */
+    transform: translateY(-4px); /* 2x from -2px */
+}
+
+.btn:active {
+    transform: translateY(0);
+    box-shadow:
+        0 0 20px rgba(0, 255, 0, 0.3), /* 2x glow */
+        inset 0 0 20px rgba(0, 0, 0, 0.2); /* 2x inset */
+}
+
+.btn:focus {
+    outline: none;
+    background: linear-gradient(145deg, #5bbab7, var(--secondary-color));
+    box-shadow:
+        0 0 50px rgba(0, 255, 0, 0.7), /* 2x glow */
+        inset 0 0 15px rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.btn.primary {
+    background: linear-gradient(145deg, var(--primary-color), #00cc00);
+    color: var(--background-color);
+    animation: pulse 2s infinite;
+}
+
+.btn.secondary {
+    background: linear-gradient(145deg, #666, #888);
+    border-color: #999;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 25px rgba(0, 255, 0, 0.7);
+    }
+}
+
+/* Menu Actions */
+.menu-actions {
+    display: flex;
+    flex-direction: row; /* Changed to horizontal */
+    justify-content: center;
+    align-items: center;
+    gap: 15px; /* Add space between buttons */
+    /* margin-top: 20px; */
+    flex-wrap: wrap; /* Allow wrapping if needed */
+}
+
+/* Progress Bar */
+.progress-bar {
+    width: 300px;
+    height: 20px;
+    background-color: var(--border-color);
+    border: 2px solid var(--primary-color);
+    margin: 20px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gitlab-red), var(--gitlab-orange), var(--primary-color));
+    width: 0;
+    transition: width 3s ease-in-out;
+    animation: progress-glow 1s infinite alternate;
+}
+
+@keyframes progress-glow {
+    0% { box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.5); }
+    100% { box-shadow: inset 0 0 20px rgba(0, 255, 0, 0.8); }
+}
+
+/* Loading Text */
+.loading-text {
+    font-size: 1.5em;
+    color: var(--text-secondary);
+    animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
+}
+
+/* GitLab Logo */
+.gitlab-logo {
+    width: 120px;
+    height: auto;
+    filter: drop-shadow(0 0 10px rgba(252, 109, 38, 0.5));
+    animation: logo-glow 3s infinite ease-in-out;
+}
+
+@keyframes logo-glow {
+    0%, 100% { filter: drop-shadow(0 0 10px rgba(252, 109, 38, 0.3)); }
+    50% { filter: drop-shadow(0 0 20px rgba(252, 109, 38, 0.8)); }
+}
+
+/* Responsive Design */
+/* Removed all media queries - desktop only game with fixed dimensions */
