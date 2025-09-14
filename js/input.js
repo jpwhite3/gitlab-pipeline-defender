@@ -7,7 +7,7 @@ class InputHandler {
     constructor() {
         this.keys = {};
         this.lastShot = 0;
-        this.fireRate = 200; // Milliseconds between shots
+        this.fireRate = 500; // Milliseconds between shots - forces strategic aiming
 
         this.setupEventListeners();
     }
@@ -136,3 +136,6 @@ class InputHandler {
         window.removeEventListener('blur', this.handleWindowBlur);
     }
 }
+
+// Make InputHandler available globally
+window.InputHandler = InputHandler;

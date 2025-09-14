@@ -18,9 +18,9 @@ class PipelineDefenderGame {
             bugSpeed: 1.0,
             powerUpSpeed: 0.6,
             playerSize: 50,
-            projectileSize: 4,
-            bugSize: 40,
-            powerUpSize: 60,
+            projectileSize: 3, // Decreased from 4 - smaller projectiles for more challenging aim
+            bugSize: 45, // Increased from 40 - slightly larger bugs for better visibility
+            powerUpSize: 55,
             spawnRate: 0.03, // probability per frame (increased)
             powerUpSpawnRate: 0.008 // increased spawn rate
         };
@@ -35,7 +35,8 @@ class PipelineDefenderGame {
         this.score = 0;
         this.timeLeft = this.config.gameTime;
         this.gameStartTime = 0;
-        this.collectedPowerUps = [];
+        this.collectedPowerUps = []; // All power-ups collected (allows duplicates)
+        this.uniquePowerUps = new Set(); // Unique power-ups for pipeline status display
         this.bugStats = {
             'Functional Errors': 0,
             'Security Bugs': 0,
@@ -145,6 +146,7 @@ class PipelineDefenderGame {
         this.timeLeft = this.config.gameTime;
         this.gameStartTime = Date.now();
         this.collectedPowerUps = [];
+        this.uniquePowerUps = new Set();
         this.bugStats = {
             'Functional Errors': 0,
             'Security Bugs': 0,
@@ -183,7 +185,7 @@ class PipelineDefenderGame {
             }
             window.display.updateScore(this.score);
             window.display.updateTimer(this.timeLeft);
-            window.display.updatePipelineStatus(this.collectedPowerUps);
+            window.display.updatePipelineStatus(Array.from(this.uniquePowerUps));
         }
 
         // Reset input
@@ -240,7 +242,7 @@ class PipelineDefenderGame {
                 }
 
                 if (this.timeLeft <= 0) {
-                    this.endGame(false, 'Time up! Mission failed.');
+                    this.endGame(true, 'Mission complete! You survived the full 60 seconds!');
                 }
             }
         }, 1000);
@@ -329,16 +331,12 @@ class PipelineDefenderGame {
             const bug = this.bugs[i];
             bug.y += this.config.bugSpeed;
 
-            // Check if bug reached the bottom of game area (game over)
-            // Give some buffer space before player position
-            const bottomBuffer = 30; // pixels above player where game ends
-            if (bug.y + bug.height >= this.gameHeight - bottomBuffer) {
-                console.log('Bug reached bottom:', bug.y + bug.height, 'vs threshold:', this.gameHeight - bottomBuffer);
-                this.endGame(false, 'A bug breached the pipeline! Mission failed.');
-                return;
+            // Remove bugs that reach the bottom (Issue #13: score-based survival, no game over from bugs reaching bottom)
+            if (bug.y + bug.height >= this.gameHeight) {
+                console.log('Bug reached bottom - removing (score-based gameplay):', bug.y + bug.height);
+                this.removeBug(i);
+                continue;
             }
-
-            // Remove if off screen (shouldn't happen due to above check)
             if (bug.y > this.gameHeight) {
                 if (window.display) {
                     window.display.removeBug(bug.id);
@@ -388,15 +386,9 @@ class PipelineDefenderGame {
     }
 
     spawnBug() {
-        // Don't spawn bugs of types that have been eliminated
-        const availableBugTypes = this.bugTypes.filter(type => {
-            const powerUp = this.bugToPowerUpMap[type];
-            return !this.collectedPowerUps.includes(powerUp);
-        });
-
-        if (availableBugTypes.length === 0) return;
-
-        const bugType = availableBugTypes[Math.floor(Math.random() * availableBugTypes.length)];
+        // All bug types continue to spawn for continuous gameplay
+        // Power-ups clear existing bugs but don't prevent respawning
+        const bugType = this.bugTypes[Math.floor(Math.random() * this.bugTypes.length)];
 
         const bug = {
             id: this.nextBugId++,
@@ -425,14 +417,8 @@ class PipelineDefenderGame {
     }
 
     spawnPowerUp() {
-        // Only spawn power-ups that haven't been collected
-        const availablePowerUps = this.powerUpTypes.filter(type =>
-            !this.collectedPowerUps.includes(type)
-        );
-
-        if (availablePowerUps.length === 0) return;
-
-        const powerUpType = availablePowerUps[Math.floor(Math.random() * availablePowerUps.length)];
+        // All power-up types can spawn multiple times for continuous scoring
+        const powerUpType = this.powerUpTypes[Math.floor(Math.random() * this.powerUpTypes.length)];
 
         const powerUp = {
             id: this.nextPowerUpId++,
@@ -535,10 +521,13 @@ class PipelineDefenderGame {
     }
 
     collectPowerUp(powerUp) {
+        // Add to collected list (allows duplicates for scoring)
         this.collectedPowerUps.push(powerUp.type);
+        // Track unique power-ups for pipeline status display
+        this.uniquePowerUps.add(powerUp.type);
         this.addScore(1000);
 
-        // Remove all bugs of the corresponding type
+        // Remove all bugs of the corresponding type currently on screen
         const bugTypeToRemove = Object.keys(this.bugToPowerUpMap).find(
             key => this.bugToPowerUpMap[key] === powerUp.type
         );
@@ -559,13 +548,12 @@ class PipelineDefenderGame {
         if (window.display) {
             window.display.createScorePopup(powerUp.x + powerUp.width/2, powerUp.y, 1000, true);
             window.display.createPowerUpEffect(powerUp.x + powerUp.width/2, powerUp.y, powerUp.type);
-            window.display.updatePipelineStatus(this.collectedPowerUps);
+            // Use unique power-ups for pipeline status (shows which types have been collected at least once)
+            window.display.updatePipelineStatus(Array.from(this.uniquePowerUps));
         }
 
-        // Check win condition
-        if (this.collectedPowerUps.length === 4) {
-            this.endGame(true, 'Pipeline secured! Mission complete!');
-        }
+        // Score-based gameplay: Power-ups clear current bugs but don't prevent respawning
+        // Players survive 60 seconds and maximize score through repeated power-up collection
     }
 
     addScore(points) {
@@ -755,4 +743,5 @@ class PipelineDefenderGame {
     }
 }
 
-// Game will be initialized by init.js
+// Make PipelineDefenderGame available globally
+window.PipelineDefenderGame = PipelineDefenderGame;

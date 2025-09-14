@@ -676,3 +676,6 @@ class CanvasDisplayManager {
         };
     }
 }
+
+// Make CanvasDisplayManager available globally
+window.CanvasDisplayManager = CanvasDisplayManager;

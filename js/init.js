@@ -38,29 +38,30 @@ class GameInitializer {
         console.log('🔄 Starting component initialization...');
 
         // Add fallback initialization after 5 seconds
-        setTimeout(() => {
+        setTimeout(async () => {
             const allReady = this.initOrder.every(component => this.initialized[component]);
             if (!allReady) {
                 console.warn('⚠️ Some components failed to initialize, using fallback');
-                this.fallbackInitialization();
+                await this.fallbackInitialization();
             }
         }, 5000);
 
         this.initOrder.forEach((component, index) => {
-            setTimeout(() => {
-                this.initializeComponent(component);
+            setTimeout(async () => {
+                await this.initializeComponent(component);
             }, index * 100); // Stagger initialization
         });
     }
 
-    fallbackInitialization() {
+    async fallbackInitialization() {
         console.log('🚨 Running fallback initialization...');
 
         // Simple initialization without our complex system
         try {
-            if (!window.display && window.DisplayManager) {
-                window.display = new DisplayManager();
-                console.log('✅ Fallback: Display initialized');
+            if (!window.display && window.CanvasDisplayManager) {
+                window.display = new CanvasDisplayManager();
+                await window.display.init();
+                console.log('✅ Fallback: Canvas display initialized');
             }
 
             if (!window.input && window.InputHandler) {
@@ -99,7 +100,7 @@ class GameInitializer {
         }
     }
 
-    initializeComponent(component) {
+    async initializeComponent(component) {
         if (this.initialized[component]) {
             console.log(`✅ ${component} already initialized`);
             return;
@@ -123,7 +124,7 @@ class GameInitializer {
                     this.initializeDebug();
                     break;
                 case 'display':
-                    this.initializeDisplay();
+                    await this.initializeDisplay();
                     break;
                 case 'input':
                     this.initializeInput();
@@ -145,8 +146,8 @@ class GameInitializer {
             this.retryAttempts[retryKey]++;
 
             // Retry after delay
-            setTimeout(() => {
-                this.initializeComponent(component);
+            setTimeout(async () => {
+                await this.initializeComponent(component);
             }, 500 * this.retryAttempts[retryKey]);
         }
     }
@@ -161,27 +162,28 @@ class GameInitializer {
         }
     }
 
-    initializeDisplay() {
-        if (!window.DisplayManager) {
-            throw new Error('DisplayManager class not available');
+    async initializeDisplay() {
+        if (!window.CanvasDisplayManager) {
+            throw new Error('CanvasDisplayManager class not available');
         }
 
-        // Check if game area exists
-        const gameArea = document.getElementById('game-area');
-        if (!gameArea) {
-            throw new Error('Game area element not found');
+        // Check if canvas exists
+        const canvas = document.getElementById('game-canvas');
+        if (!canvas) {
+            throw new Error('Game canvas element not found');
         }
 
         if (!window.display) {
-            window.display = new DisplayManager();
+            window.display = new CanvasDisplayManager();
+            await window.display.init();
         }
 
-        if (window.display && window.display.gameArea) {
+        if (window.display) {
             this.initialized.display = true;
-            console.log('✅ Display system initialized');
-            window.debugLogger?.log('INFO', 'Display system ready');
+            console.log('✅ Canvas display system initialized');
+            window.debugLogger?.log('INFO', 'Canvas display system ready');
         } else {
-            throw new Error('Display initialization failed');
+            throw new Error('Canvas display initialization failed');
         }
     }
 

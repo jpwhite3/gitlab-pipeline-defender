@@ -470,5 +470,5 @@ class ScreenManager {
     }
 }
 
-// Initialize screen manager when DOM is ready
-// Screens will be initialized by init.js
+// Make ScreenManager available globally
+window.ScreenManager = ScreenManager;

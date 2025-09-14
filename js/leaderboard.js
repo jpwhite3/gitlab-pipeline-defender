@@ -371,7 +371,5 @@ class LeaderboardManager {
     }
 }
 
-// Initialize leaderboard when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    window.leaderboard = new LeaderboardManager();
-});
+// Make LeaderboardManager available globally
+window.LeaderboardManager = LeaderboardManager;
