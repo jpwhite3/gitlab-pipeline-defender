@@ -61,10 +61,6 @@
 
                 <div id="game-area">
                     <canvas id="game-canvas" width="1136" height="626"></canvas>
-                    <!-- Visual debug info -->
-                    <div id="debug-overlay" style="position: absolute; top: 10px; left: 10px; color: white; font-family: monospace; font-size: 12px; z-index: 1000; background: rgba(0,0,0,0.7); padding: 5px;">
-                        Debug Info
-                    </div>
                 </div>
             </div>
         </div>
@@ -131,21 +127,7 @@
                         console.error('PLAYER POSITION:', window.game?.player);
                         console.error('GAME DIMENSIONS:', window.game?.gameWidth, 'x', window.game?.gameHeight);
 
-                        // Visual debug overlay
-                        const debugOverlay = document.getElementById('debug-overlay');
-                        if (debugOverlay && window.game) {
-                            const updateDebug = () => {
-                                const player = window.game.player;
-                                debugOverlay.innerHTML = `
-                                    Player: (${Math.round(player?.x || 0)}, ${Math.round(player?.y || 0)})<br>
-                                    Game: ${window.game.gameWidth}x${window.game.gameHeight}<br>
-                                    Projectiles: ${window.game.projectiles?.length || 0}<br>
-                                    Bugs: ${window.game.bugs?.length || 0}
-                                `;
-                            };
-                            setInterval(updateDebug, 100);
-                            updateDebug();
-                        }
+                        // Debug overlay removed for production-ready appearance
                     }, 500);
 
                     // Add a test bug after 2 seconds

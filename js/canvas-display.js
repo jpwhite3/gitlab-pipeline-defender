@@ -499,27 +499,8 @@ class CanvasDisplayManager {
 
         // Apply warning flash overlay (after restoring transform)
         this.applyWarningFlash();
-
-        // Debug info on canvas
-        this.drawDebugInfo(gameState);
     }
 
-    drawDebugInfo(gameState) {
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        this.ctx.fillRect(10, 10, 300, 100);
-
-        this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.font = '12px monospace';
-
-        let y = 25;
-        this.ctx.fillText(`Player: (${Math.round(gameState.player?.x || 0)}, ${Math.round(gameState.player?.y || 0)})`, 15, y);
-        y += 15;
-        this.ctx.fillText(`Projectiles: ${gameState.projectiles?.length || 0}`, 15, y);
-        y += 15;
-        this.ctx.fillText(`Bugs: ${gameState.bugs?.length || 0}`, 15, y);
-        y += 15;
-        this.ctx.fillText(`PowerUps: ${gameState.powerUps?.length || 0}`, 15, y);
-    }
 
     // Legacy methods for compatibility (will be no-ops or simple implementations)
     updatePlayer() { /* Canvas renders everything in render() */ }
@@ -547,7 +528,6 @@ class CanvasDisplayManager {
             duration: 500 // milliseconds
         });
 
-        console.log('Canvas: Explosion created at', x, y);
     }
 
     createScorePopup(x, y, score, isBig = false) {
@@ -565,7 +545,6 @@ class CanvasDisplayManager {
             isBig: isBig
         });
 
-        console.log('Canvas: Score popup created:', score, 'at', x, y, isBig ? '(big)' : '');
     }
 
     createPowerUpEffect(x, y, type) {
@@ -582,7 +561,6 @@ class CanvasDisplayManager {
             duration: 1000 // milliseconds
         });
 
-        console.log('Canvas: Power-up effect created:', type, 'at', x, y);
     }
 
     flashWarning() {
@@ -592,7 +570,6 @@ class CanvasDisplayManager {
             duration: 900 // 3 flashes * 300ms each
         };
 
-        console.log('Canvas: Warning flash triggered');
     }
 
     shakeScreen(intensity, duration) {
@@ -603,12 +580,10 @@ class CanvasDisplayManager {
             duration: duration || 500
         };
 
-        console.log('Canvas: Screen shake triggered:', intensity, 'for', duration, 'ms');
     }
 
     // Additional required methods
     clearGameObjects() {
-        console.log('Canvas: clearGameObjects called (no-op for canvas)');
     }
 
     updateScore(score) {
@@ -626,7 +601,7 @@ class CanvasDisplayManager {
     }
 
     ensureHUDVisible() {
-        console.log('Canvas: ensureHUDVisible called');
+        // No-op for canvas implementation
     }
 
     updatePipelineStatus(collectedPowerUps) {

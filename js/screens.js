@@ -294,8 +294,21 @@ class ScreenManager {
         if (result.success) {
             resultTitle.textContent = 'MISSION COMPLETE';
             resultTitle.className = 'game-over-success';
-            completionStatus.className = 'completion-status success';
-            completionText.textContent = 'Pipeline Status: SECURED ✅';
+
+            // Pipeline status based on actual power-up collection
+            const uniqueCollected = result.uniquePowerUpsCollected || 0;
+            const totalTypes = result.totalPowerUpTypes || 4;
+
+            if (uniqueCollected === totalTypes) {
+                completionStatus.className = 'completion-status success';
+                completionText.textContent = 'Pipeline Status: FULLY SECURED ✅';
+            } else if (uniqueCollected > 0) {
+                completionStatus.className = 'completion-status partial';
+                completionText.textContent = `Pipeline Status: PARTIALLY SECURED (${uniqueCollected}/${totalTypes}) 🔶`;
+            } else {
+                completionStatus.className = 'completion-status minimal';
+                completionText.textContent = 'Pipeline Status: MINIMAL SECURITY (0/4) ⚠️';
+            }
         } else {
             resultTitle.textContent = 'MISSION FAILED';
             resultTitle.className = 'game-over-failure';
@@ -312,6 +325,7 @@ class ScreenManager {
         document.getElementById('stat-quality').textContent = result.bugStats['Quality Bugs'] || 0;
         document.getElementById('stat-secrets').textContent = result.bugStats['Embedded Secrets'] || 0;
         document.getElementById('stat-powerups').textContent = `${result.powerupsCollected}/4`;
+        document.getElementById('stat-bugs-escaped').textContent = result.bugsEscaped || 0;
 
         this.showScreen('game-over-screen');
     }

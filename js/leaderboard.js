@@ -53,6 +53,7 @@ class LeaderboardManager {
                 entry.timestamp = Date.now();
             }
             if (entry.pipelineComplete === undefined) {
+                // For legacy entries, use power-up collection as success indicator
                 entry.pipelineComplete = entry.powerupsCollected === 4;
             }
             if (!entry.timeTaken) {
@@ -89,7 +90,7 @@ class LeaderboardManager {
             timeTaken: gameResult.timeTaken,
             bugsKilled: gameResult.bugsKilled,
             powerupsCollected: gameResult.powerupsCollected,
-            pipelineComplete: gameResult.powerupsCollected === 4,
+            pipelineComplete: gameResult.success,
             bugStats: { ...gameResult.bugStats },
             timestamp: Date.now(),
             date: new Date().toLocaleDateString()
@@ -108,7 +109,7 @@ class LeaderboardManager {
         this.stats.averageScore = Math.round(this.stats.totalScore / this.stats.totalGames);
         this.stats.totalPlayTime += gameResult.timeTaken;
 
-        if (gameResult.powerupsCollected === 4) {
+        if (gameResult.success) {
             this.stats.successfulCompletions++;
 
             // Update best time for successful completions

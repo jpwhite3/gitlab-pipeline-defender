@@ -430,7 +430,7 @@ class DisplayManager {
         if (scoreElement) {
             const prevScore = parseInt(scoreElement.textContent) || 0;
             scoreElement.textContent = score.toLocaleString();
-            console.log('🔄 Score updated:', score);
+            // Console logging removed for performance during extended gameplay
 
             // Animate score change
             if (score > prevScore) {
@@ -448,7 +448,7 @@ class DisplayManager {
         const timerElement = document.getElementById('timer-display');
         if (timerElement) {
             timerElement.textContent = timeLeft;
-            console.log('⏰ Timer updated:', timeLeft);
+            // Console logging removed for performance during extended gameplay
 
             // Add warning styling for low time
             if (timeLeft <= 10) {

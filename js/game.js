@@ -44,6 +44,9 @@ class PipelineDefenderGame {
             'Embedded Secrets': 0
         };
 
+        // Bug escape tracking for penalty system
+        this.bugsEscaped = 0;
+
         // Issue #12: Power-up frequency control (1 every 10 seconds with type cycling)
         this.powerUpTimer = 0;
         this.powerUpInterval = 10; // seconds between power-ups
@@ -162,6 +165,9 @@ class PipelineDefenderGame {
         // Issue #12: Reset power-up timer and cycling index
         this.powerUpTimer = 0;
         this.currentPowerUpIndex = 0;
+
+        // Reset bug escape counter
+        this.bugsEscaped = 0;
 
         // Clear objects
         this.projectiles = [];
@@ -349,7 +355,15 @@ class PipelineDefenderGame {
 
             // Remove bugs that reach the bottom (Issue #13: score-based survival, no game over from bugs reaching bottom)
             if (bug.y + bug.height >= this.gameHeight) {
-                console.log('Bug reached bottom - removing (score-based gameplay):', bug.y + bug.height);
+                // Bug escaped - apply penalty and count
+                this.bugsEscaped++;
+                this.score = Math.max(0, this.score - 1); // -1 point penalty, don't go below 0
+
+                // Update score display
+                if (window.display) {
+                    window.display.updateScore(this.score);
+                }
+
                 this.removeBug(i);
                 continue;
             }
@@ -679,7 +693,10 @@ class PipelineDefenderGame {
             score: this.score,
             timeTaken: timeTaken,
             bugsKilled: totalBugsKilled,
+            bugsEscaped: this.bugsEscaped,
             powerupsCollected: this.collectedPowerUps.length,
+            uniquePowerUpsCollected: this.uniquePowerUps.size,
+            totalPowerUpTypes: this.powerUpTypes.length,
             bugStats: { ...this.bugStats },
             message: message
         };
