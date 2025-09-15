@@ -18,53 +18,67 @@
     </style>
 </head>
 <body>
-    <div id="crt-monitor">
-        <div id="screen">
-            <!-- Game Screen Only -->
-            <div id="game-screen" class="game-screen active">
-                <div id="game-hud">
-                    <div class="hud-left">
-                        <div class="hud-item">
-                            <span class="hud-label">SCORE:</span>
-                            <span id="score-display" class="hud-value">0</span>
+    <div style="display: flex; flex-direction: column; align-items: center; min-height: 100vh; justify-content: center;">
+        <div id="crt-monitor">
+            <div id="screen">
+                <!-- Game Screen Only -->
+                <div id="game-screen" class="game-screen active">
+                    <div id="game-hud">
+                        <div class="hud-left">
+                            <div class="hud-item">
+                                <span class="hud-label">SCORE:</span>
+                                <span id="score-display" class="hud-value">0</span>
+                            </div>
+                            <div class="hud-item">
+                                <span class="hud-label">TIME:</span>
+                                <span id="timer-display" class="hud-value">60</span>
+                            </div>
                         </div>
-                        <div class="hud-item">
-                            <span class="hud-label">TIME:</span>
-                            <span id="timer-display" class="hud-value">60</span>
-                        </div>
-                    </div>
 
-                    <div class="hud-right">
-                        <div class="pipeline-status">
-                            <div class="pipeline-items">
-                                <h3>PIPELINE STATUS</h3>
-                                <div id="pipeline-test" class="pipeline-item">
-                                    <span class="pipeline-icon">🧪</span>
-                                    <span>TEST</span>
-                                </div>
-                                <div id="pipeline-csm" class="pipeline-item">
-                                    <span class="pipeline-icon">🔐</span>
-                                    <span>CSM</span>
-                                </div>
-                                <div id="pipeline-sec" class="pipeline-item">
-                                    <span class="pipeline-icon">🛡️</span>
-                                    <span>SEC</span>
-                                </div>
-                                <div id="pipeline-qual" class="pipeline-item">
-                                    <span class="pipeline-icon">✅</span>
-                                    <span>QUAL</span>
+                        <div class="hud-center" style="display: flex; justify-content: center; align-items: center; flex: 1;">
+                            <div class="hud-item" style="text-align: center;">
+                                <span id="demo-mode-indicator" class="hud-value" style="color: #FC6D26; font-weight: bold; display: block;">-- DEMO MODE --</span>
+                            </div>
+                        </div>
+
+                        <div class="hud-right">
+                            <div class="pipeline-status">
+                                <div class="pipeline-items">
+                                    <h3>PIPELINE STATUS</h3>
+                                    <div id="pipeline-test" class="pipeline-item">
+                                        <span class="pipeline-icon">🧪</span>
+                                        <span>TEST</span>
+                                    </div>
+                                    <div id="pipeline-csm" class="pipeline-item">
+                                        <span class="pipeline-icon">🔐</span>
+                                        <span>CSM</span>
+                                    </div>
+                                    <div id="pipeline-sec" class="pipeline-item">
+                                        <span class="pipeline-icon">🛡️</span>
+                                        <span>SEC</span>
+                                    </div>
+                                    <div id="pipeline-qual" class="pipeline-item">
+                                        <span class="pipeline-icon">✅</span>
+                                        <span>QUAL</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div id="game-area">
-                    <canvas id="game-canvas" width="1136" height="626"></canvas>
+                    <div id="game-area">
+                        <canvas id="game-canvas" width="1136" height="626"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- Demo controls below entire CRT monitor -->
+        <div style="text-align: center; padding: 20px; color: #888; font-size: 16px; font-family: 'VT323', monospace;">
+            ESC: Exit | R: Restart | SPACE: Pause
+        </div>
     </div>
+
 
     <!-- NO DEBUG SYSTEM - Load minimal scripts only -->
     <script>
@@ -90,9 +104,209 @@
                     currentScreen: 'game-screen',
                     endGame: (result) => {
                         console.error('Game ended:', result);
-                        alert(result.success ? 'You Win!' : 'Game Over: ' + result.message);
+                        console.error(result.success ? 'Demo Win!' : 'Demo Game Over: ' + result.message);
+                        // Auto-restart demo immediately for continuous loop
+                        setTimeout(() => {
+                            if (window.demoAI) {
+                                window.demoAI.restartDemo();
+                            }
+                        }, 1000);
                     }
                 };
+
+                // Wild Demo AI Controller Class - Simple arcade-style gameplay
+                class DemoAI {
+                    constructor(game) {
+                        this.game = game;
+                        this.isActive = true;
+                        this.lastUpdate = 0;
+                        this.updateInterval = 50; // Update every 50ms for fast movement
+                        this.lastShot = 0;
+                        this.shootCooldown = 150; // Base shooting cooldown
+                        this.burstMode = false; // Sometimes do burst shooting
+                        this.burstCount = 0;
+                        this.burstTarget = 0;
+
+                        // Wild movement state
+                        this.direction = 1; // 1 for right, -1 for left
+                        this.moveSpeed = 15; // Much faster movement
+                        this.directionChangeTimer = 0;
+                        this.directionChangeInterval = Math.random() * 800 + 200; // Change direction every 0.2-1.0 seconds
+                        this.targetX = Math.random() * (this.game.gameWidth - 50); // Random target position
+                        this.useTargetMovement = false; // Switch between target-based and directional movement
+
+                        this.startAI();
+                    }
+
+                    startAI() {
+                        this.aiLoop = setInterval(() => {
+                            if (this.isActive && this.game && this.game.isRunning && !this.game.isPaused) {
+                                this.update();
+                            }
+                        }, this.updateInterval);
+                        console.error('Wild Demo AI started - prepare for chaos!');
+                    }
+
+                    update() {
+                        const now = Date.now();
+                        if (now - this.lastUpdate < 50) return; // Minimum 50ms between updates
+                        this.lastUpdate = now;
+
+                        // Wild erratic movement
+                        this.updateWildMovement();
+
+                        // Constant shooting
+                        this.shootWildly();
+                    }
+
+                    updateWildMovement() {
+                        const player = this.game.player;
+                        const now = Date.now();
+
+                        // Check if we should change movement pattern or direction
+                        if (now - this.directionChangeTimer > this.directionChangeInterval) {
+                            const movementChoice = Math.random();
+
+                            if (movementChoice > 0.8) {
+                                // 20% chance: Dramatic jump to opposite side of screen
+                                this.targetX = player.x < this.game.gameWidth / 2 ?
+                                    this.game.gameWidth - player.width - 20 : 20;
+                                this.useTargetMovement = true;
+                                console.error('Demo AI dramatic jump to:', this.targetX);
+                            } else if (movementChoice > 0.4) {
+                                // 40% chance: Target movement to random position
+                                this.targetX = Math.random() * (this.game.gameWidth - player.width);
+                                this.useTargetMovement = true;
+                                console.error('Demo AI targeting position:', this.targetX);
+                            } else {
+                                // 40% chance: Directional movement
+                                this.useTargetMovement = false;
+                                if (Math.random() > 0.7) {
+                                    this.direction *= -1; // Reverse
+                                } else {
+                                    this.direction = Math.random() > 0.5 ? 1 : -1; // Random direction
+                                }
+                                console.error('Demo AI changing direction to:', this.direction > 0 ? 'right' : 'left');
+                            }
+
+                            this.directionChangeTimer = now;
+                            this.directionChangeInterval = Math.random() * 600 + 200; // 0.2-0.8 seconds (more frequent)
+                        }
+
+                        let newX = player.x;
+
+                        if (this.useTargetMovement && this.targetX !== null) {
+                            // Move towards target position quickly
+                            const distanceToTarget = this.targetX - player.x;
+                            if (Math.abs(distanceToTarget) > 5) {
+                                const moveDirection = Math.sign(distanceToTarget);
+                                newX = player.x + (moveDirection * this.moveSpeed);
+                            } else {
+                                // Reached target, switch to directional movement
+                                this.useTargetMovement = false;
+                                this.direction = Math.random() > 0.5 ? 1 : -1;
+                            }
+                        } else {
+                            // Directional movement with variable speed
+                            const speedVariation = 0.5 + Math.random() * 0.5; // 0.5x to 1.0x speed variation
+                            newX = player.x + (this.direction * this.moveSpeed * speedVariation);
+                        }
+
+                        // Handle boundary collisions with dramatic direction changes
+                        if (newX <= 0) {
+                            newX = 0;
+                            this.direction = 1;
+                            this.useTargetMovement = false;
+                            this.directionChangeTimer = now;
+                            this.directionChangeInterval = Math.random() * 300 + 100; // Quick change after wall hit
+                        } else if (newX >= this.game.gameWidth - player.width) {
+                            newX = this.game.gameWidth - player.width;
+                            this.direction = -1;
+                            this.useTargetMovement = false;
+                            this.directionChangeTimer = now;
+                            this.directionChangeInterval = Math.random() * 300 + 100;
+                        }
+
+                        // Update player position
+                        player.x = newX;
+
+                        // Update display with appropriate velocity indication
+                        if (window.display) {
+                            const displayVelocity = this.useTargetMovement ?
+                                Math.sign(this.targetX - player.x) : this.direction;
+                            window.display.updatePlayer({
+                                x: player.x,
+                                y: player.y,
+                                velocity: displayVelocity
+                            });
+                        }
+                    }
+
+                    shootWildly() {
+                        const now = Date.now();
+
+                        // Handle burst mode
+                        if (this.burstMode) {
+                            if (now - this.lastShot > 80) { // Faster shooting in burst mode
+                                this.game.shoot();
+                                this.lastShot = now;
+                                this.burstCount++;
+
+                                if (this.burstCount >= this.burstTarget) {
+                                    this.burstMode = false;
+                                    this.burstCount = 0;
+                                    console.error('Demo AI burst complete, cooling down');
+                                    // Add a longer cooldown after burst
+                                    this.lastShot = now + Math.random() * 500 + 200;
+                                }
+                            }
+                            return;
+                        }
+
+                        // Regular shooting with varied patterns
+                        if (now - this.lastShot > this.shootCooldown) {
+                            const randomChoice = Math.random();
+
+                            if (randomChoice > 0.85) {
+                                // 15% chance: Start burst mode
+                                this.burstMode = true;
+                                this.burstTarget = Math.floor(Math.random() * 5) + 3; // 3-7 shots in burst
+                                this.burstCount = 0;
+                                console.error('Demo AI starting burst mode:', this.burstTarget, 'shots');
+                                this.game.shoot();
+                                this.lastShot = now;
+                            } else if (randomChoice > 0.75) {
+                                // 10% chance: Skip shot (create gaps in firing)
+                                console.error('Demo AI pausing shooting');
+                                this.lastShot = now + Math.random() * 400 + 200; // Longer pause
+                            } else if (randomChoice > 0.1) {
+                                // 65% chance: Normal shot with slight timing variation
+                                this.game.shoot();
+                                this.lastShot = now;
+                                // Vary the next shot timing
+                                this.shootCooldown = 120 + Math.random() * 80; // 120-200ms variation
+                            }
+                            // 10% chance: Do nothing (miss shot for randomness)
+                        }
+                    }
+
+                    restartDemo() {
+                        console.error('Restarting demo...');
+                        // Reset game and restart
+                        if (this.game) {
+                            this.game.startNewGame();
+                        }
+                    }
+
+                    stop() {
+                        this.isActive = false;
+                        if (this.aiLoop) {
+                            clearInterval(this.aiLoop);
+                            this.aiLoop = null;
+                        }
+                        console.error('Demo AI stopped');
+                    }
+                }
 
                 // Initialize canvas display (async)
                 window.display = new CanvasDisplayManager();
@@ -107,9 +321,11 @@
                     console.error('   Then open: http://localhost:8000/simple.html');
                 }
 
-                // Initialize input
+                // Initialize input (disabled for demo mode)
                 window.input = new InputHandler();
-                console.error('Input OK');
+                // Disable input handling for demo mode
+                window.input.reset();
+                console.error('Input initialized (demo mode)');
 
                 // Initialize game
                 window.game = new PipelineDefenderGame();
@@ -117,38 +333,24 @@
 
                 // Start game after 1 second
                 setTimeout(() => {
-                    console.error('Starting game...');
+                    console.error('Starting demo mode game...');
                     console.error('Initial projectiles array:', window.game.projectiles);
                     console.error('Initial bugs array:', window.game.bugs);
+
+                    // Start the game
                     window.game.startNewGame();
 
-                    // Log player position for debugging
+                    // Initialize Demo AI after game starts
                     setTimeout(() => {
                         console.error('PLAYER POSITION:', window.game?.player);
                         console.error('GAME DIMENSIONS:', window.game?.gameWidth, 'x', window.game?.gameHeight);
 
-                        // Debug overlay removed for production-ready appearance
+                        // Initialize Demo AI
+                        window.demoAI = new DemoAI(window.game);
+                        console.error('Demo AI initialized');
                     }, 500);
 
-                    // Add a test bug after 2 seconds
-                    setTimeout(() => {
-                        if (window.game && window.display) {
-                            const testBug = {
-                                id: window.game.nextBugId++,  // Use proper numeric ID from game
-                                x: 300,
-                                y: 100,
-                                width: 40,
-                                height: 40,
-                                size: 40,  // Add size property for display
-                                type: 'Functional Errors'
-                            };
-                            window.game.bugs.push(testBug);
-                            window.display.createBug(testBug);
-                            console.error('Test bug created at:', testBug.x, testBug.y);
-                            console.error('After bug creation - Projectiles array:', window.game.projectiles);
-                            console.error('After bug creation - Bugs array:', window.game.bugs);
-                        }
-                    }, 2000);
+                    // Demo mode - no manual test bugs needed, AI will handle everything
                 }, 1000);
 
             } catch (error) {
@@ -156,37 +358,49 @@
             }
         });
 
-        // Add simple key testing and manual movement
+        // Demo mode controls
         document.addEventListener('keydown', (e) => {
-            console.error('Key pressed:', e.key);
+            console.error('Key pressed in demo mode:', e.key);
 
-            // Manual movement testing
-            if (window.game && window.game.player) {
-                const player = window.game.player;
-                console.error('Player position before:', player.x);
+            // Demo mode controls
+            if (e.key === 'Escape') {
+                console.error('Exiting demo mode...');
+                console.error('Demo mode ended. Refresh page to restart demo.');
+                if (window.demoAI) {
+                    window.demoAI.stop();
+                }
+                if (window.game) {
+                    window.game.isRunning = false;
+                }
+                // Fade out the game screen
+                document.getElementById('game-screen').style.opacity = '0.3';
+            }
 
-                if (e.key === 'ArrowLeft' || e.key === 'a') {
-                    player.x -= 20;
-                    console.error('Moving left to:', player.x);
+            if (e.key === 'r' || e.key === 'R') {
+                console.error('Restarting demo...');
+                if (window.demoAI) {
+                    window.demoAI.restartDemo();
                 }
-                if (e.key === 'ArrowRight' || e.key === 'd') {
-                    player.x += 20;
-                    console.error('Moving right to:', player.x);
-                }
-                if (e.key === ' ') {
-                    console.error('Shooting! Projectiles:', window.game?.projectiles?.length);
-                    // Shooting is now handled by input.js to avoid duplicates
-                }
+            }
 
-                // Update display
-                if (window.display) {
-                    window.display.updatePlayer({
-                        x: player.x,
-                        y: player.y
-                    });
+            // Space bar toggles pause in demo mode
+            if (e.key === ' ') {
+                e.preventDefault();
+                if (window.game) {
+                    window.game.togglePause();
+                    console.error('Demo paused/resumed');
                 }
             }
         });
+
+        // Add demo mode instructions
+        setTimeout(() => {
+            console.error('=== DEMO MODE CONTROLS ===');
+            console.error('ESC: Exit demo mode');
+            console.error('R: Restart demo');
+            console.error('SPACE: Pause/Resume');
+            console.error('==========================');
+        }, 2000);
     </script>
 </body>
 </html>

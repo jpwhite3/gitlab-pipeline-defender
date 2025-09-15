@@ -320,7 +320,15 @@
 
             } catch (error) {
                 console.error('❌ Initialization failed:', error);
-                alert('Game initialization failed. Please refresh the page and try again.');
+                console.error('Please refresh the page and try again.');
+                // Show error in a more game-appropriate way
+                document.body.innerHTML = `
+                    <div style="color: #ff3333; font-family: 'VT323', monospace; font-size: 24px; text-align: center; padding: 50px;">
+                        <h1>SYSTEM ERROR</h1>
+                        <p>Game initialization failed.</p>
+                        <p>Please refresh the page and try again.</p>
+                    </div>
+                `;
             }
         });
     </script>
