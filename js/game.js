@@ -295,8 +295,48 @@ class PipelineDefenderGame {
     handleInput() {
         if (!window.input) return;
 
-        const direction = window.input.getMovementDirection();
-        this.player.velocity = direction * this.config.playerSpeed;
+        // Priority Logic: Mouse > Keyboard
+        // If mouse has moved recently, it takes control and maps position directly (Arcade style)
+        if (window.input.isMouseActive && window.input.isMouseActive()) {
+            // Arcade Style: Character mirrors mouse X position
+            
+            // Get mouse X from input
+            const mouseX = window.input.getMouseX();
+            
+            // Convert to game coordinates
+            // We need to know where the game area is on screen to offset
+            let gameAreaLeft = 0;
+            let gameAreaWidth = window.innerWidth; // Fallback
+            
+            if (window.display && window.display.gameArea) {
+                const rect = window.display.gameArea.getBoundingClientRect();
+                gameAreaLeft = rect.left;
+                gameAreaWidth = rect.width;
+            }
+            
+            // Calculate target X (centering player on mouse)
+            // If the game canvas is scaled, we might need more complex logic, 
+            // but relying on the bounding rect of the container is a robust start.
+            
+            // Relative mouse X within game area
+            const relativeMouseX = mouseX - gameAreaLeft;
+            
+            // Scale factor: Game Internal Width / Display Width
+            const scaleX = this.gameWidth / gameAreaWidth;
+            
+            const targetX = (relativeMouseX * scaleX) - (this.player.width / 2);
+            
+            // Immediate position update (clamped to bounds)
+            this.player.x = Math.max(0, Math.min(this.gameWidth - this.player.width, targetX));
+            
+            // Zero velocity since we are positioning directly
+            this.player.velocity = 0;
+            
+        } else {
+            // Keyboard Mode (Legacy/Fallback)
+            const direction = window.input.getMovementDirection();
+            this.player.velocity = direction * this.config.playerSpeed;
+        }
     }
 
     updatePlayer() {

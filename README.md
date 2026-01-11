@@ -38,11 +38,15 @@ Simply open `index.html` in your web browser - no installation required!
 ## 🎲 How to Play
 
 ### Controls
-- **Movement**: Arrow keys (←/→) or WASD keys
-- **Shooting**: Spacebar only
+### Controls
+- **Movement**: 
+  - **Mouse**: Move cursor to position ship (Arcade Style).
+  - **Keyboard**: Arrow keys (←/→) or WASD keys.
+  - *Note: Mouse movement takes priority over keyboard.*
+- **Shooting**: 
+  - **Mouse**: Left click (hold for auto-fire).
+  - **Keyboard**: Spacebar.
 - **Navigation**: Tab to navigate menus, Enter to select, ESC to pause/go back
-
-*Note: This is a keyboard-only game. No mouse or touch support.*
 
 ### Game Mechanics
 
