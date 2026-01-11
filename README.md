@@ -2,7 +2,7 @@
 
 A GitLab-themed educational arcade shooter game where players defend CI/CD pipelines from software bugs.
 
-![GitLab Pipeline Defender](images/gitlab-tanuki.png)
+![GitLab Pipeline Defender](images/screenshot.png)
 
 ## 🎮 Game Overview
 
