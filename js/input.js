@@ -7,7 +7,7 @@ class InputHandler {
     constructor() {
         this.keys = {};
         this.lastShot = 0;
-        this.fireRate = 500; // Milliseconds between shots - forces strategic aiming
+        this.fireRate = 150; // Sync with demo.html AI cooling (was 500)
 
         // Mouse input state
         this.mouse = {
